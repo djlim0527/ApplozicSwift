@@ -387,6 +387,7 @@
 				8B0E0D051F3DEF44000D976A /* Embed Frameworks */,
 				8B06E48A22618EC300B7FA64 /* ShellScript */,
 				95D58918ABDCD358A3CD02E3 /* [CP] Embed Pods Frameworks */,
+				2F0C9304EE1A2F3CD7D50370 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -448,7 +449,6 @@
 				TargetAttributes = {
 					8B36D0E31F3DC5E900FEFFD2 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = C25JNDCBM4;
 						LastSwiftMigration = 1150;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -548,6 +548,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2F0C9304EE1A2F3CD7D50370 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ApplozicSwiftDemo/Pods-ApplozicSwiftDemo-resources.sh",
+				"${PODS_ROOT}/AppLovinSDK/applovin-ios-sdk-6.14.3/AppLovinSDKResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AppLovinSDKResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ApplozicSwiftDemo/Pods-ApplozicSwiftDemo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		8B06E48A22618EC300B7FA64 /* ShellScript */ = {
@@ -892,7 +910,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = C25JNDCBM4;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
