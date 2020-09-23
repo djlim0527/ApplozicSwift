@@ -16,8 +16,31 @@ class ALKImageView: UIImageView {
     }
 }
 
+public protocol ALKMessageCellDelegate: AnyObject {
+    func urlTapped(url: URL, message: ALKMessageViewModel)
+}
+
 // swiftlint:disable:next type_body_length
 open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel> {
+    enum ConstraintIdentifier {
+        enum ReplyNameLabel {
+            static let height = "ReplyNameHeight"
+        }
+
+        enum ReplyMessageLabel {
+            static let height = "ReplyMessageHeight"
+        }
+
+        enum PreviewImage {
+            static let height = "ReplyPreviewImageHeight"
+            static let width = "ReplyPreviewImageWidth"
+        }
+
+        static let replyViewHeightIdentifier = "ReplyViewHeight"
+    }
+
+    weak var delegate: ALKMessageCellDelegate?
+
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
         let textView = ALKTextView(frame: .zero)
@@ -189,7 +212,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel> {
             return
         }
         /// Comes here for html and email
-        DispatchQueue.global().async {
+        DispatchQueue.global(qos: .utility).async {
             let attributedText = ALKMessageCell.attributedStringFrom(message, for: viewModel.identifier)
             DispatchQueue.main.async {
                 self.messageView.attributedText = attributedText
@@ -216,6 +239,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel> {
         bubbleView.addGestureRecognizer(longPressGesture)
         let replyTapGesture = UITapGestureRecognizer(target: self, action: #selector(replyViewTapped))
         replyView.addGestureRecognizer(replyTapGesture)
+        messageView.delegate = self
     }
 
     override func setupStyle() {
@@ -437,5 +461,13 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel> {
         } else {
             messageView.text = viewModel.message
         }
+    }
+}
+
+extension ALKMessageCell: UITextViewDelegate {
+    public func textView(_: UITextView, shouldInteractWith URL: URL, in _: NSRange, interaction _: UITextItemInteraction) -> Bool {
+        guard let message = viewModel else { return true }
+        delegate?.urlTapped(url: URL, message: message)
+        return false
     }
 }

@@ -9,14 +9,13 @@
 import Foundation
 
 enum AppPermission {
-    
-    enum AlertMessage{
-    static let accessNotificationInApplication = "“ApplozicSwiftDemo” Would Like to Send You Notifications"
-    static let accessPhoto = "“ApplozicSwiftDemo” Would Like to Access Your Photos"
-    static let accessContact = "“ApplozicSwiftDemo” Would Like to Access Your Contacts"
-    static let accessLocation = "“ApplozicSwiftDemo” to access your location while you are using the app?"
+    enum AlertMessage {
+        static let accessNotificationInApplication = "“ApplozicSwiftDemo” Would Like to Send You Notifications"
+        static let accessPhoto = "“ApplozicSwiftDemo” Would Like to Access Your Photos"
+        static let accessContact = "“ApplozicSwiftDemo” Would Like to Access Your Contacts"
+        static let accessLocation = "“ApplozicSwiftDemo” to access your location while you are using the app?"
     }
-    
+
     enum AlertButton {
         static let allow = "Allow"
         static let ok = "OK"
@@ -25,12 +24,11 @@ enum AppPermission {
 }
 
 enum InAppButton {
-    
     enum LaunchScreen {
         static let getStarted = "Get Started"
         static let launchChat = "Launch Chat"
     }
-    
+
     enum CreatingGroup {
         static let newChat = "fill 214"
         static let createGroup = "Create Group"
@@ -41,7 +39,16 @@ enum InAppButton {
         static let save = "Save"
         static let removeUser = "Remove user"
     }
-    
+
+    enum EditGroup {
+        static let remove = "Remove"
+        static let save = "Save"
+        static let removeUser = "Remove user"
+        static let makeGroupAdmin = "Make group admin"
+        static let iconSendWhite = "icon send white"
+        static let edit = "Edit"
+    }
+
     enum ConversationScreen {
         static let send = "sendButton"
         static let back = "conversationBackButton"
@@ -68,4 +75,11 @@ enum AppTextFeild {
     static let password = "Password"
     static let typeGroupName = "Type group name"
     static let chatTextView = "chatTextView"
+}
+
+enum AppCells {
+    static let textCell = "myTextCell"
+    static let photoCell = "myPhotoCell"
+    static let locationCell = "myLocationCell"
+    static let contactCell = "myContactCell"
 }

@@ -9,12 +9,10 @@
 import Applozic
 import UIKit
 
-class ALKSearchResultViewController: UIViewController {
+public class ALKSearchResultViewController: ALKBaseViewController {
     fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
 
     let viewModel = SearchResultViewModel()
-    let configuration: ALKConfiguration
-
     lazy var viewController = ALKConversationListTableViewController(
         viewModel: self.viewModel,
         dbService: ALMessageDBService(),
@@ -24,9 +22,8 @@ class ALKSearchResultViewController: UIViewController {
 
     var conversationViewController: ALKConversationViewController?
 
-    init(configuration: ALKConfiguration) {
-        self.configuration = configuration
-        super.init(nibName: nil, bundle: nil)
+    public required init(configuration: ALKConfiguration) {
+        super.init(configuration: configuration)
         viewController.delegate = self
     }
 
@@ -34,12 +31,12 @@ class ALKSearchResultViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
     }
 
-    func search(key: String) {
+    public func search(key: String) {
         activityIndicator.startAnimating()
         clear()
         viewController.replaceViewModel(viewModel)
@@ -51,13 +48,27 @@ class ALKSearchResultViewController: UIViewController {
         }
     }
 
-    func clear() {
+    public func clear() {
         viewModel.clear()
     }
 
-    func clearAndReload() {
+    public func clearAndReload() {
         clear()
         viewController.tableView.reloadData()
+    }
+
+    public func setUpSearchViewController() -> UISearchController {
+        let searchController = UISearchController(searchResultsController: self)
+        searchController.searchBar.autocapitalizationType = .none
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.alpha = 0
+        searchController.searchBar.showsCancelButton = true
+        if #available(iOS 13.0, *) {
+            searchController.automaticallyShowsCancelButton = true
+        } else {
+            searchController.searchBar.showsCancelButton = true
+        }
+        return searchController
     }
 
     private func setupView() {
@@ -76,11 +87,11 @@ class ALKSearchResultViewController: UIViewController {
 }
 
 extension ALKSearchResultViewController: ALKConversationListTableViewDelegate {
-    func muteNotification(conversation _: ALMessage, isMuted _: Bool) {}
+    public func muteNotification(conversation _: ALMessage, isMuted _: Bool) {}
 
-    func userBlockNotification(userId _: String, isBlocked _: Bool) {}
+    public func userBlockNotification(userId _: String, isBlocked _: Bool) {}
 
-    func tapped(_ chat: ALKChatViewModelProtocol, at _: Int) {
+    public func tapped(_ chat: ALKChatViewModelProtocol, at _: Int) {
         let convViewModel = viewModel.conversationViewModelFrom(
             contactId: chat.contactId,
             channelId: chat.channelKey,
@@ -93,12 +104,10 @@ extension ALKSearchResultViewController: ALKConversationListTableViewDelegate {
         viewController.viewModel = convViewModel
         viewController.individualLaunch = false
         conversationViewController = viewController
-
-        let navVC = ALKBaseNavigationViewController(rootViewController: viewController)
-        present(navVC, animated: false, completion: nil)
+        presentingViewController?.navigationController?.pushViewController(viewController, animated: true)
     }
 
-    func emptyChatCellTapped() {}
+    public func emptyChatCellTapped() {}
 
-    func scrolledToBottom() {}
+    public func scrolledToBottom() {}
 }

@@ -57,12 +57,8 @@ open class AudioRecordButton: UIButton {
         addConstraints([NSLayoutConstraint(item: recordButton, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0)])
 
         var image = UIImage(named: "microphone", in: Bundle.applozic, compatibleWith: nil)
-
-        if #available(iOS 9.0, *) {
-            image = image?.imageFlippedForRightToLeftLayoutDirection()
-        } else {
-            // Fallback on earlier versions
-        }
+        image = image?.imageFlippedForRightToLeftLayoutDirection()
+            .withRenderingMode(.alwaysTemplate)
 
         recordButton.setImage(image, for: .normal)
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(userDidTapRecord(_:)))
@@ -112,6 +108,8 @@ open class AudioRecordButton: UIButton {
         case AVAudioSession.RecordPermission.granted:
             // mic access ok...
             isAllow = true
+        @unknown default:
+            print("Unknown Microphone Permission state")
         }
 
         return isAllow
@@ -197,7 +195,13 @@ open class AudioRecordButton: UIButton {
                 delegate?.cancelRecordingAudio()
                 cancelAudioRecord()
             }
+        @unknown default:
+            print("Unknown Microphone Permission state")
         }
+    }
+
+    func setButtonTintColor(color: UIColor) {
+        recordButton.imageView?.tintColor = color
     }
 }
 

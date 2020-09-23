@@ -14,6 +14,7 @@ public enum AttachmentType: CaseIterable, Equatable {
     case gallery
     case video
     case location
+    case document
 }
 
 /// A type that can be used to configure chat bar items
@@ -25,6 +26,9 @@ public struct ALKChatBarConfiguration {
         case none
         case some([AttachmentType])
     }
+
+    /// If true then button tint color will be disabled for attachment buttons, send button.
+    public var disableButtonTintColor = false
 
     /// Use this to set the `AttachmentOptions` you want to show.
     /// By default it is set to `all`.
@@ -46,6 +50,8 @@ public struct ALKChatBarConfiguration {
                 icons[.video] = UIImage(named: "video", in: Bundle.applozic, compatibleWith: nil)
             case .location:
                 icons[.location] = UIImage(named: "location_new", in: Bundle.applozic, compatibleWith: nil)
+            case .document:
+                icons[.document] = UIImage(named: "ic_alk_document", in: Bundle.applozic, compatibleWith: nil)
             }
         }
         return icons

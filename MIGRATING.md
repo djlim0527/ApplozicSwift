@@ -1,5 +1,44 @@
 ## Migration Guides
 
+### Migrating from versions <= 5.5.0
+
+#### Removed the deprecated configuration for navigation bar
+
+The configuration for changing `navigationBarTitleColor`, `navigationBarBackgroundColor`, `navigationBarItemColor` has been removed from `ALKConfiguration`.
+
+Instead use `UINavigationBar.appearance` to change the navigation bar title, background and bar item color
+
+```swift
+let navigationBarProxy = UINavigationBar.appearance(whenContainedInInstancesOf: [ALKBaseNavigationViewController.self])
+      /// Background color
+      navigationBarProxy.barTintColor
+          = UIColor(red: 0.93, green: 0.94, blue: 0.95, alpha: 1.0)
+      /// Title text color
+      navigationBarProxy.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+      navigationBarProxy.isTranslucent = false
+      /// Icons tint color
+      navigationBarProxy.tintColor = .white
+```
+### Migrating from versions <= 5.1.1
+
+#### Date separator and channel info messages style customization
+
+- `ALKConfiguration.conversationViewCustomCellTextColor`, has been deprecated. Use style `ALKMessageStyle.infoMessage` or `ALKMessageStyle.dateSeparator`.
+
+- `ALKConfiguration.conversationViewCustomCellBackgroundColor`, has been deprecated. Use style `ALKMessageStyle.infoMessage` or `ALKMessageStyle.dateSeparator`.
+
+Use below config for changing the style for date cell or channel info messages.
+</br>
+
+For example to change the style in date separator you can config as below:
+```swift
+ALKMessageStyle.dateSeparator = Style(font: UIFont.systemFont(ofSize: 12), text: UIColor.black, background: .red)
+```
+For example to change the style for channel info messages you can config as below:
+ ```swift
+ ALKMessageStyle.infoMessage = Style(font: UIFont.systemFont(ofSize: 12), text: UIColor.black , background: .red)
+ ```
+
 ### Migrating from versions < 3.4.0
 
 #### Navigation Bar Customization
@@ -37,7 +76,7 @@ navigationBarProxy.titleTextAttributes = [NSAttributedString.Key.foregroundColor
 
   -  ConversationList configuration
    `ALKConfiguration.rightNavBarImageForConversationListView`, has been deprecated. Use `ALKConfiguration.navigationItemsForConversationList` to add buttons in the navigation bar
-   
+
   ```swift
     // ConversationList
     var navigationItemsForConversationList = [ALKNavigationItem]()
@@ -53,7 +92,7 @@ navigationBarProxy.titleTextAttributes = [NSAttributedString.Key.foregroundColor
 
     // Adding an item in the list
     navigationItemsForConversationList.append(buttonTwo)
-    
+
     config.navigationItemsForConversationList = navigationItemsForConversationList
 
     // Add an Observer to get the event callback
@@ -64,9 +103,9 @@ navigationBarProxy.titleTextAttributes = [NSAttributedString.Key.foregroundColor
         print("Navigation button click for identifier in ConversationList is : ",identifier)
     })
   ```
-  
+
   -  ConversationView configuration
-    
+
   ```swift
     // ConversationView
     var navigationItemsForConversationView = [ALKNavigationItem]()

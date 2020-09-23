@@ -9,6 +9,20 @@ import Foundation
 import Kingfisher
 
 class ALKFriendMessageView: UIView {
+    enum ConstraintIdentifier {
+        enum MessageView {
+            static let height = "MessageViewHeight"
+        }
+
+        enum AvatarImageView {
+            static let height = "AvatarImageHeight"
+        }
+
+        enum NameLabel {
+            static let height = "NameLabelHeight"
+        }
+    }
+
     private var widthPadding: CGFloat = CGFloat(ALKMessageStyle.receivedBubble.widthPadding)
 
     fileprivate lazy var messageView: ALKHyperLabel = {
@@ -18,14 +32,8 @@ class ALKFriendMessageView: UIView {
         return label
     }()
 
-    fileprivate var timeLabel: UILabel = {
-        let lb = UILabel()
-        lb.isOpaque = true
-        return lb
-    }()
-
-    public var bubbleView: UIImageView = {
-        let bv = UIImageView()
+    public var bubbleView: ALKImageView = {
+        let bv = ALKImageView()
         bv.clipsToBounds = true
         bv.isUserInteractionEnabled = false
         bv.isOpaque = true
@@ -53,6 +61,28 @@ class ALKFriendMessageView: UIView {
     enum Padding {
         enum MessageView {
             static let top: CGFloat = 4
+            static let bottom: CGFloat = 2
+            static let leading: CGFloat = 18
+        }
+
+        enum NameLabel {
+            static let top: CGFloat = 6
+            static let leading: CGFloat = 57
+            static let trailing: CGFloat = 57
+            static let height: CGFloat = 16
+        }
+
+        enum BubbleView {
+            static let top: CGFloat = 2
+            static let bottom: CGFloat = 2
+        }
+
+        enum AvatarImageView {
+            static let top: CGFloat = 18
+            static let bottom: CGFloat = 0
+            static let trailing: CGFloat = 18
+            static let leading: CGFloat = 9
+            static let height: CGFloat = 37
         }
     }
 
@@ -67,50 +97,41 @@ class ALKFriendMessageView: UIView {
     }
 
     func setupStyle() {
-        if ALKMessageStyle.receivedBubble.style == .edge {
-            let image = UIImage(named: "chat_bubble_rounded", in: Bundle.applozic, compatibleWith: nil)
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.image = image?.imageFlippedForRightToLeftLayoutDirection()
-        } else {
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
-        }
+        bubbleView.setBubbleStyle(ALKMessageStyle.receivedBubble, isReceiverSide: true)
     }
 
     func setupViews() {
-        addViewsForAutolayout(views: [avatarImageView, nameLabel, bubbleView, messageView, timeLabel])
+        addViewsForAutolayout(views: [avatarImageView, nameLabel, bubbleView, messageView])
         bringSubviewToFront(messageView)
 
-        nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 57).isActive = true
-        nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -57).isActive = true
-        nameLabel.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: Padding.NameLabel.top).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Padding.NameLabel.leading).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Padding.NameLabel.trailing).isActive = true
+        nameLabel.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.NameLabel.height).isActive = true
 
-        avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: 18).isActive = true
-        avatarImageView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: 0).isActive = true
+        avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: Padding.AvatarImageView.top).isActive = true
+        avatarImageView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: Padding.AvatarImageView.bottom).isActive = true
 
-        avatarImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 9).isActive = true
+        avatarImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Padding.AvatarImageView.leading).isActive = true
 
-        avatarImageView.trailingAnchor.constraint(equalTo: messageView.leadingAnchor, constant: -18).isActive = true
+        avatarImageView.trailingAnchor.constraint(equalTo: messageView.leadingAnchor, constant: -Padding.AvatarImageView.trailing).isActive = true
 
-        avatarImageView.heightAnchor.constraint(equalToConstant: 37).isActive = true
+        avatarImageView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.AvatarImageView.height).isActive = true
         avatarImageView.widthAnchor.constraint(equalTo: avatarImageView.heightAnchor).isActive = true
 
         messageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Padding.MessageView.top).isActive = true
         messageView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor).isActive = true
 
-        messageView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -2).isActive = true
-        messageView.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 18).isActive = true
+        messageView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -Padding.MessageView.bottom).isActive = true
+        messageView.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Padding.MessageView.leading).isActive = true
 
-        bubbleView.topAnchor.constraint(equalTo: messageView.topAnchor, constant: -2).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: messageView.bottomAnchor, constant: 2).isActive = true
+        messageView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.MessageView.height).isActive = true
+
+        bubbleView.topAnchor.constraint(equalTo: messageView.topAnchor, constant: Padding.BubbleView.top).isActive = true
+        bubbleView.bottomAnchor.constraint(equalTo: messageView.bottomAnchor, constant: Padding.BubbleView.bottom).isActive = true
 
         bubbleView.leadingAnchor.constraint(equalTo: messageView.leadingAnchor, constant: -widthPadding).isActive = true
         bubbleView.trailingAnchor.constraint(equalTo: messageView.trailingAnchor, constant: widthPadding).isActive = true
-
-        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 10).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 2).isActive = true
     }
 
     func update(viewModel: ALKMessageViewModel) {
@@ -127,8 +148,6 @@ class ALKFriendMessageView: UIView {
         nameLabel.setStyle(ALKMessageStyle.displayName)
         messageView.text = viewModel.message ?? ""
         messageView.setStyle(ALKMessageStyle.receivedMessage)
-        timeLabel.text = viewModel.time
-        timeLabel.setStyle(ALKMessageStyle.time)
     }
 
     class func rowHeight(viewModel: ALKMessageViewModel, width: CGFloat) -> CGFloat {
@@ -139,8 +158,21 @@ class ALKFriendMessageView: UIView {
         let font = ALKMessageStyle.receivedMessage.font
         let messageWidth = width - 64 // left padding 9 + 18 + 37
         var messageHeight = message.heightWithConstrainedWidth(messageWidth, font: font)
-        messageHeight += 30 // 6 + 16 + 4 + 2 + 2
+        messageHeight += 32 // 6 + 16 + 4 + 2
         return max(messageHeight, minimumHeight)
+    }
+
+    func updateHeightOfViews(hideView: Bool, viewModel: ALKMessageViewModel, maxWidth: CGFloat) {
+        let messageHeight = hideView ? 0 : ALKFriendMessageView.rowHeight(viewModel: viewModel, width: maxWidth)
+        messageView
+            .constraint(withIdentifier: ConstraintIdentifier.MessageView.height)?
+            .constant = messageHeight
+        nameLabel
+            .constraint(withIdentifier: ConstraintIdentifier.NameLabel.height)?
+            .constant = hideView ? 0 : Padding.NameLabel.height
+        avatarImageView
+            .constraint(withIdentifier: ConstraintIdentifier.AvatarImageView.height)?
+            .constant = hideView ? 0 : Padding.AvatarImageView.height
     }
 
     class func rowHeigh(viewModel: ALKMessageViewModel, widthNoPadding: CGFloat) -> CGFloat {

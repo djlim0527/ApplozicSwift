@@ -39,6 +39,7 @@ open class ALKChatBar: UIView, Localizable {
         case more(UIButton)
         case cameraButtonClicked(UIButton)
         case shareContact
+        case showDocumentPicker
     }
 
     public var action: ((ActionType) -> Void)?
@@ -156,6 +157,12 @@ open class ALKChatBar: UIView, Localizable {
         return button
     }()
 
+    open var documentButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = "documentButtonInConversationScreen"
+        return button
+    }()
+
     open var lineImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "line", in: Bundle.applozic, compatibleWith: nil))
         return imageView
@@ -163,11 +170,7 @@ open class ALKChatBar: UIView, Localizable {
 
     open lazy var sendButton: UIButton = {
         let bt = UIButton(type: .custom)
-        var image = configuration.sendMessageIcon
-        image = image?.imageFlippedForRightToLeftLayoutDirection()
-        bt.setImage(image, for: .normal)
         bt.accessibilityIdentifier = "sendButton"
-
         return bt
     }()
 
@@ -261,12 +264,15 @@ open class ALKChatBar: UIView, Localizable {
             action?(.showLocation)
         case contactButton:
             action?(.shareContact)
+        case documentButton:
+            action?(.showDocumentPicker)
         default: break
         }
     }
 
     fileprivate func toggleKeyboardType(textView: UITextView) {
-        textView.keyboardType = .asciiCapable
+        // If the keyboard used is not English, the keyboard is changed. (.asciiCapable -> .emailAddress)
+        textView.keyboardType = .emailAddress
         textView.reloadInputViews()
         textView.keyboardType = .default
         textView.reloadInputViews()
@@ -295,9 +301,19 @@ open class ALKChatBar: UIView, Localizable {
         galleryButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         locationButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
-
-        setupAttachment(buttonIcons: chatBarConfiguration.attachmentIcons)
+        documentButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        let appSettingsUserDefaults = ALKAppSettingsUserDefaults()
+        let buttonTintColor = appSettingsUserDefaults.getAttachmentIconsTintColor()
+        setupAttachment(buttonIcons: chatBarConfiguration.attachmentIcons, tintColor: buttonTintColor)
         setupConstraints()
+        micButton.setButtonTintColor(color: buttonTintColor)
+        var image = configuration.sendMessageIcon
+        image = image?.imageFlippedForRightToLeftLayoutDirection()
+        if !chatBarConfiguration.disableButtonTintColor {
+            image = image?.withRenderingMode(.alwaysTemplate)
+            sendButton.imageView?.tintColor = buttonTintColor
+        }
+        sendButton.setImage(image, for: .normal)
 
         if configuration.hideLineImageFromChatBar {
             lineImageView.isHidden = true
@@ -313,8 +329,7 @@ open class ALKChatBar: UIView, Localizable {
         textView.text = ""
         clearTextInTextView()
         textView.attributedText = nil
-        // If the keyboard used is not English, the keyboard is changed.
-        // toggleKeyboardType(textView: textView)
+        toggleKeyboardType(textView: textView)
     }
 
     func hideMicButton() {
@@ -338,6 +353,7 @@ open class ALKChatBar: UIView, Localizable {
         galleryButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         locationButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        documentButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
     }
 
     private var isNeedInitText = true
@@ -402,6 +418,8 @@ open class ALKChatBar: UIView, Localizable {
                 return photoButton
             case .video:
                 return videoButton
+            case .document:
+                return documentButton
             }
         }
 
@@ -541,6 +559,14 @@ open class ALKChatBar: UIView, Localizable {
         }
     }
 
+    public func disableSendButton(isSendButtonDisabled: Bool) {
+        sendButton.isEnabled = !isSendButtonDisabled
+    }
+
+    public func addTextView(delegate: UITextViewDelegate) {
+        textView.add(delegate: delegate)
+    }
+
     private func changeButton() {
         if soundRec.isHidden {
             soundRec.isHidden = false
@@ -553,7 +579,7 @@ open class ALKChatBar: UIView, Localizable {
         } else {
             micButton.isSelected = false
             soundRec.isHidden = true
-            placeHolder.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
+            resetToDefaultPlaceholderText()
         }
     }
 
@@ -561,7 +587,7 @@ open class ALKChatBar: UIView, Localizable {
         soundRec.userDidStopRecording()
         micButton.isSelected = false
         soundRec.isHidden = true
-        placeHolder.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
+        resetToDefaultPlaceholderText()
     }
 
     func hideAudioOptionInChatBar() {
@@ -607,7 +633,7 @@ open class ALKChatBar: UIView, Localizable {
     func enableChat() {
         guard soundRec.isHidden else { return }
         toggleUserInteractionForViews(enabled: true)
-        placeHolder.text = NSLocalizedString("ChatHere", value: SystemMessage.Information.ChatHere, comment: "")
+        resetToDefaultPlaceholderText()
     }
 
     func updateTextViewHeight(textView: UITextView, text: String) {
@@ -629,7 +655,7 @@ open class ALKChatBar: UIView, Localizable {
         }
     }
 
-    func setupAttachment(buttonIcons: [AttachmentType: UIImage?]) {
+    func setupAttachment(buttonIcons: [AttachmentType: UIImage?], tintColor: UIColor?) {
         func setup(
             image: UIImage?,
             to button: UIButton,
@@ -637,6 +663,11 @@ open class ALKChatBar: UIView, Localizable {
         ) {
             var image = image?.imageFlippedForRightToLeftLayoutDirection()
             image = image?.scale(with: size)
+            if tintColor != nil,
+                !chatBarConfiguration.disableButtonTintColor {
+                image = image?.withRenderingMode(.alwaysTemplate)
+                button.imageView?.tintColor = tintColor
+            }
             button.setImage(image, for: .normal)
         }
 
@@ -652,6 +683,8 @@ open class ALKChatBar: UIView, Localizable {
                 setup(image: buttonIcons[AttachmentType.video] ?? nil, to: videoButton)
             case .location:
                 setup(image: buttonIcons[AttachmentType.location] ?? nil, to: locationButton)
+            case .document:
+                setup(image: buttonIcons[AttachmentType.document] ?? nil, to: documentButton)
             }
         }
     }
@@ -715,6 +748,10 @@ extension ALKChatBar: UITextViewDelegate {
         guard textView.text == nil || textView.text.isEmpty else { return }
         textView.changeTextDirection()
         placeHolder.changeTextDirection()
+    }
+
+    func resetToDefaultPlaceholderText() {
+        placeHolder.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
     }
 
     fileprivate func clearTextInTextView() {

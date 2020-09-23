@@ -5,6 +5,162 @@ The changelog for [ApplozicSwift](https://github.com/AppLozic/ApplozicSwift). Al
 
 ## [Unreleased]
 
+## [5.10.0] - 2020-09-09
+
+### Enhancements
+- [CM-213] Added support for sharing photos saved on iCloud.
+
+## [5.9.2] - 2020-08-21
+
+### Enhancements
+- Removed the line limit of form selection items to allow dynamic text of any size.
+
+## [5.9.1] - 2020-08-18
+
+### Enhancements
+- [CM-426] Increased the line limit of form selection items.
+
+### Fixes
+- Fixed issue where message metadata coming as nil in some cases.
+
+## [5.9.0] - 2020-08-14
+
+### Enhancements
+- [CM-384] Added document sharing support.
+### Fixes
+- [CM-417] Fixed a crash that occurred in iOS 13.5 after going back from the group detail or document viewer to a conversation thread.
+
+## [5.8.2] - 2020-07-24
+
+### Fixes
+- Fixed the issue in attachments download.
+
+## [5.8.1] - 2020-07-23
+
+### Fixes
+- Fixed the issue where form data submit was using data from previous cell.
+
+## [5.8.0] - 2020-07-15
+
+### Enhancements
+- [CM-22] Add form template support in the rich messages.
+
+## [5.7.1] - 2020-07-06
+
+### Fixes
+- [CM-354] Fixed audio playing issue when changing chat threads.
+
+## [5.7.0] - 2020-06-23
+
+### Enhancements
+- Migrated to Swift 5
+
+### Fixes
+- [CM-281] Fixed "no results found" error when opening a location message.
+
+## [5.6.0] - 2020-06-08
+
+### Fixes
+[CM-276] Fixed a crash in MQTT subscription
+
+## [5.5.0] - 2020-05-25
+
+### Enhancements
+-[CM-224] Add support for rich message templates without any text message
+
+## [5.4.0] - 2020-05-07
+
+### Enhancements
+
+- Show link preview in chat for web links
+</br>You can use below config to disable web link preview in chat:
+```
+    config.isLinkPreviewDisabled = true
+```
+You need to set `Allow Arbitrary` Loads to YES on your project's `Info.plist` file.
+```
+ <key>NSAppTransportSecurity</key>
+  <dict>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+  </dict>
+```
+If you don't want to use the above option, You can white list some the websites which you want to allow them in `Info.plist` file
+```
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <false/>
+  <key>NSExceptionDomains</key>
+  <dict>
+    <key>google.com</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+    </dict>
+  </dict>
+</dict>
+```
+You can read more on Property List Keys
+[here](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsexceptiondomains)
+
+### Fixes
+- [CM-146] Fixed back button issue in searched conversation view.
+- [CM-241] Fixed a crash that could happen when some message updates are delayed.
+- [CM-225] Fixed an issue where group profile was getting removed on group name update.
+
+## [5.3.0] - 2020-04-21
+
+### Enhancements
+
+- [CM-193] Added support to open the application when tapping any URL in the text message. If the application isn't installed, we'll open it in Safari.
+
+### Fixes
+
+- [CM-201] Fixed an issue where the footer of the sender-side view of email messages overlapped with the header, as there were no constraints.
+- [CM-146] Fixed search messages loading issue.
+
+## [5.2.0] - 2020-03-31
+
+### Enhancements
+- Customize the date and info message font, text color or background color of the view
+</br>Use the below config to change the style of date separator and channel info messages:
+
+```
+   ALKMessageStyle.infoMessage = Style(font: UIFont.systemFont(ofSize: 12), text: UIColor.black , background: .red)
+
+   ALKMessageStyle.dateSeparator = Style(font: UIFont.systemFont(ofSize: 12), text: UIColor.black, background: .red)
+```
+
+## [5.1.1] - 2020-03-04
+
+### Fixes
+-[CM-136] RichMessage button UI issue
+
+## [5.1.0] - 2020-03-03
+
+### Enhancements
+- Added support for syncing package details when a suspension screen is shown.
+- Added an option to change message status(read receipt) style. Now icon for message status can be changed from outside or it can be hidden.
+- Added a config to disable in-app notification banner.
+</br>You can use below config to disable in-app notification banner:
+```
+	config.isInAppNotificationBannerDisabled = true
+```
+
+## [5.0.0] - 2020-02-14
+
+### Enhancements
+- Added save photo button in the media viewer.
+
+### Fixes
+- If the keyboard used is not English, the keyboard is changed. (.asciiCapable -> .emailAddress)
+- [CM-141] Fixed an issue where messages were deleted after leaving the group.
+- [CM-142] Fixed back button alignment issue in the Conversation screen.
+- [CM-133] Fixed an issue where updating certain localizable strings from a custom localizable file did not work.
+
 ## [4.1.0] - 2020-01-27
 
 ### Enhancements
@@ -289,5 +445,20 @@ The mute icon image can be changed from outside using below code.
 
 ### Fixes
 - [AL-2885] Fixed a crash when tapping on add member in Create group screen.
-
-
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.

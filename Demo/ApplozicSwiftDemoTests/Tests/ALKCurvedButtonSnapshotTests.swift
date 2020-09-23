@@ -6,13 +6,13 @@
 //  Copyright © 2019 Applozic. All rights reserved.
 //
 
-import Quick
 import Nimble
 import Nimble_Snapshots
+import Quick
+import UIKit
 @testable import ApplozicSwift
 
 class ALKCurvedButtonSnapshotTests: QuickSpec {
-
     override func spec() {
         describe("CurvedImageButton") {
             var button: CurvedImageButton!
@@ -28,8 +28,9 @@ class ALKCurvedButtonSnapshotTests: QuickSpec {
 
             context("with different font") {
                 beforeEach {
-                    var config = CurvedImageButton.Config()
-                    config.font = UIFont.boldSystemFont(ofSize: 40)
+                    ALKRichMessageStyle.primaryColor = UIColor(85, green: 83, blue: 183)
+                    let config = CurvedImageButton.Config()
+                    CurvedImageButton.QuickReplyButtonStyle.shared.font = UIFont.boldSystemFont(ofSize: 40)
                     button = CurvedImageButton(title: "Demo text", config: config)
                 }
                 it("has a valid snapshot") {
@@ -39,13 +40,9 @@ class ALKCurvedButtonSnapshotTests: QuickSpec {
 
             context("with different color") {
                 beforeEach {
-                    var config = CurvedImageButton.Config()
-                    let color = CurvedImageButton.Config.Color(
-                        text: .red,
-                        border: UIColor.red.cgColor,
-                        background: .clear,
-                        tint: .red)
-                    config.color = color
+                    let config = CurvedImageButton.Config()
+                    ALKRichMessageStyle.primaryColor = .red
+                    CurvedImageButton.QuickReplyButtonStyle.shared.font = UIFont.systemFont(ofSize: 14)
                     button = CurvedImageButton(title: "Demo text", config: config)
                 }
                 it("has a valid snapshot") {
@@ -55,6 +52,8 @@ class ALKCurvedButtonSnapshotTests: QuickSpec {
 
             context("with different width") {
                 beforeEach {
+                    ALKRichMessageStyle.primaryColor = UIColor(85, green: 83, blue: 183)
+                    CurvedImageButton.QuickReplyButtonStyle.shared.font = UIFont.systemFont(ofSize: 14)
                     button = CurvedImageButton(title: "Very long text for button", maxWidth: 100)
                 }
                 it("has a valid snapshot") {
@@ -84,5 +83,4 @@ class ALKCurvedButtonSnapshotTests: QuickSpec {
             }
         }
     }
-
 }

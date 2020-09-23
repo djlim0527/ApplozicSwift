@@ -29,6 +29,7 @@ public enum ALKMessageType: String {
     case faqTemplate = "FAQTemplate"
     case imageMessage = "ImageMessage"
     case allButtons = "AllButtons"
+    case form = "Form"
 }
 
 // MARK: - MessageViewModel
@@ -104,6 +105,13 @@ extension ALKMessageModel: Equatable {
 }
 
 extension ALKMessageViewModel {
+    var isMessageEmpty: Bool {
+        guard let messageString = message, !messageString.trim().isEmpty else {
+            return true
+        }
+        return false
+    }
+
     var containsMentions: Bool {
         // Only check when it's a group
         guard channelKey != nil, let mentionParser = mentionParser else {
@@ -150,5 +158,19 @@ extension ALKMessageViewModel {
         let jsonArray = try? JSONSerialization.jsonObject(with: data, options: .allowFragments)
         guard let quickReplyArray = jsonArray as? [[String: Any]] else { return nil }
         return quickReplyArray
+    }
+}
+
+extension ALKMessageViewModel {
+    public var status: MessageStatus {
+        if isAllRead {
+            return .read
+        } else if isAllReceived {
+            return .delivered
+        } else if isSent {
+            return .sent
+        } else {
+            return .pending
+        }
     }
 }

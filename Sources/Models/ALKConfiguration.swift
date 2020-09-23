@@ -64,12 +64,6 @@ public struct ALKConfiguration {
     /// If true then start new conversation button shown in the empty state will be disabled
     public var hideEmptyStateStartNewButtonInConversationList = false
 
-    /// Date cell and  information cell  background color
-    public var conversationViewCustomCellBackgroundColor = UIColor.gray
-
-    /// Date cell and  information cell  text color
-    public var conversationViewCustomCellTextColor = UIColor.white
-
     /// Additional information you can pass in message metadata in all the messages.
     public var messageMetadata: [AnyHashable: Any]?
 
@@ -148,6 +142,12 @@ public struct ALKConfiguration {
     // If true, Then message search will be enabled
     public var isMessageSearchEnabled: Bool = false
 
+    // If true, then in-app notification banner will be disabled
+    public var isInAppNotificationBannerDisabled: Bool = false
+
+    // If true, then link preview will be disabled
+    public var isLinkPreviewDisabled: Bool = false
+
     /// If true, contact share option in chatbar will be hidden.
     @available(*, deprecated, message: "Use .chatBar.optionsToShow instead")
     public var hideContactInChatBar: Bool = false {
@@ -186,34 +186,25 @@ public struct ALKConfiguration {
     /// Use this to configure channel detail view like changing member name label color, title font etc.
     public var channelDetail = ALKChannelDetailViewConfiguration()
 
-    /// Navigation bar's background color. It will be used in all the
-    /// ViewControllers where navigation bar is visible.
-    @available(*, deprecated, message: "Use UIAppearance for customization.")
-    public var navigationBarBackgroundColor = UIColor.navigationOceanBlue() {
+    /// Date cell and  information cell  background color
+    @available(*, deprecated, message: "Use ALKMessageStyle for customization.")
+    public var conversationViewCustomCellBackgroundColor = UIColor.gray {
         didSet {
-            let navigationBarProxy = UINavigationBar.appearance(whenContainedInInstancesOf: [ALKBaseNavigationViewController.self])
-            navigationBarProxy.barTintColor = navigationBarBackgroundColor
+            let infoMessageStyle = ALKMessageStyle.infoMessage
+            let dateCellStyle = ALKMessageStyle.dateSeparator
+            ALKMessageStyle.infoMessage = Style(font: infoMessageStyle.font, text: conversationViewCustomCellTextColor, background: conversationViewCustomCellBackgroundColor)
+            ALKMessageStyle.dateSeparator = Style(font: dateCellStyle.font, text: conversationViewCustomCellTextColor, background: conversationViewCustomCellBackgroundColor)
         }
     }
 
-    /// Navigation bar's tint color. It will be used in all the
-    /// ViewControllers where navigation bar is visible.
-    @available(*, deprecated, message: "Use UIAppearance for customization.")
-    public var navigationBarItemColor = UIColor.navigationTextOceanBlue() {
+    /// Date cell and  information cell  text color
+    @available(*, deprecated, message: "Use ALKMessageStyle for customization.")
+    public var conversationViewCustomCellTextColor = UIColor.white {
         didSet {
-            let navigationBarProxy = UINavigationBar.appearance(whenContainedInInstancesOf: [ALKBaseNavigationViewController.self])
-            navigationBarProxy.tintColor = navigationBarItemColor
-        }
-    }
-
-    /// Navigation bar's title color. It will be used in all the
-    /// ViewControllers where navigation bar is visible.
-    @available(*, deprecated, message: "Use UIAppearance for customization.")
-    public var navigationBarTitleColor = UIColor.black {
-        didSet {
-            let navigationBarProxy = UINavigationBar.appearance(whenContainedInInstancesOf: [ALKBaseNavigationViewController.self])
-            navigationBarProxy.titleTextAttributes =
-                [NSAttributedString.Key.foregroundColor: navigationBarTitleColor]
+            let infoMessageStyle = ALKMessageStyle.infoMessage
+            let dateCellStyle = ALKMessageStyle.dateSeparator
+            ALKMessageStyle.infoMessage = Style(font: infoMessageStyle.font, text: conversationViewCustomCellTextColor, background: conversationViewCustomCellBackgroundColor)
+            ALKMessageStyle.dateSeparator = Style(font: dateCellStyle.font, text: conversationViewCustomCellTextColor, background: conversationViewCustomCellBackgroundColor)
         }
     }
 

@@ -132,7 +132,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     public func prepareController() {
         if isSearch {
+            delegate?.loadingStarted()
             loadSearchMessages()
+            return
         }
         // Load messages from server in case of open group
         guard !isOpenGroup else {
@@ -254,40 +256,55 @@ open class ALKConversationViewModel: NSObject, Localizable {
         return messageModels.firstIndex { $0.identifier == identifier }
     }
 
-    open func heightForRow(indexPath: IndexPath, cellFrame _: CGRect) -> CGFloat {
+    open func heightForRow(indexPath: IndexPath, cellFrame _: CGRect, configuration: ALKConfiguration) -> CGFloat {
         let messageModel = messageModels[indexPath.section]
-        if let height = HeightCache.shared.getHeight(for: messageModel.identifier) {
+        let cacheIdentifier = (messageModel.isMyMessage ? "s-" : "r-") + messageModel.identifier
+        if let height = HeightCache.shared.getHeight(for: cacheIdentifier) {
             return height
         }
         switch messageModel.messageType {
         case .text, .html, .email:
-            if messageModel.isMyMessage {
-                let height = ALKMyMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, displayNames: { userIds in
-                    self.displayNames(ofUserIds: userIds)
-                })
-                return height.cached(with: messageModel.identifier)
-            } else {
-                let height = ALKFriendMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, displayNames: { userIds in
-                    self.displayNames(ofUserIds: userIds)
-                })
-                return height.cached(with: messageModel.identifier)
+            guard !configuration.isLinkPreviewDisabled, messageModel.messageType == .text, ALKLinkPreviewManager.extractURLAndAddInCache(from: messageModel.message, identifier: messageModel.identifier) != nil else {
+                if messageModel.isMyMessage {
+                    let height = ALKMyMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, displayNames: { userIds in
+                        self.displayNames(ofUserIds: userIds)
+                    })
+                    return height.cached(with: cacheIdentifier)
+                } else {
+                    let height = ALKFriendMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, displayNames: { userIds in
+                        self.displayNames(ofUserIds: userIds)
+                    })
+                    return height.cached(with: cacheIdentifier)
+                }
             }
+            if messageModel.isMyMessage {
+                let height = ALKMyLinkPreviewCell.rowHeigh(viewModel: messageModel, width: maxWidth, displayNames: { userIds in
+                    self.displayNames(ofUserIds: userIds)
+                })
+                return height.cached(with: cacheIdentifier)
+            } else {
+                let height = ALKFriendLinkPreviewCell.rowHeigh(viewModel: messageModel, width: maxWidth, displayNames: { userIds in
+                    self.displayNames(ofUserIds: userIds)
+                })
+                return height.cached(with: cacheIdentifier)
+            }
+
         case .photo:
             if messageModel.isMyMessage {
                 if messageModel.ratio < 1 {
                     let heigh = ALKMyPhotoPortalCell.rowHeigh(viewModel: messageModel, width: maxWidth)
-                    return heigh.cached(with: messageModel.identifier)
+                    return heigh.cached(with: cacheIdentifier)
                 } else {
                     let heigh = ALKMyPhotoLandscapeCell.rowHeigh(viewModel: messageModel, width: maxWidth)
-                    return heigh.cached(with: messageModel.identifier)
+                    return heigh.cached(with: cacheIdentifier)
                 }
             } else {
                 if messageModel.ratio < 1 {
                     let heigh = ALKFriendPhotoPortalCell.rowHeigh(viewModel: messageModel, width: maxWidth)
-                    return heigh.cached(with: messageModel.identifier)
+                    return heigh.cached(with: cacheIdentifier)
                 } else {
                     let heigh = ALKFriendPhotoLandscapeCell.rowHeigh(viewModel: messageModel, width: maxWidth)
-                    return heigh.cached(with: messageModel.identifier)
+                    return heigh.cached(with: cacheIdentifier)
                 }
             }
         case .voice:
@@ -297,12 +314,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
             } else {
                 height = ALKFriendVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
             }
-            return height.cached(with: messageModel.identifier)
+            return height.cached(with: cacheIdentifier)
         case .information:
             let height = ALKInformationCell.rowHeigh(viewModel: messageModel, width: maxWidth)
-            return height.cached(with: messageModel.identifier)
+            return height.cached(with: cacheIdentifier)
         case .location:
-            return (messageModel.isMyMessage ? ALKMyLocationCell.rowHeigh(viewModel: messageModel, width: maxWidth) : ALKFriendLocationCell.rowHeigh(viewModel: messageModel, width: maxWidth)).cached(with: messageModel.identifier)
+            return (messageModel.isMyMessage ? ALKMyLocationCell.rowHeigh(viewModel: messageModel, width: maxWidth).cached(with: cacheIdentifier) : ALKFriendLocationCell.rowHeigh(viewModel: messageModel, width: maxWidth)).cached(with: cacheIdentifier)
         case .video:
             var height: CGFloat = 0
             if messageModel.isMyMessage {
@@ -310,85 +327,86 @@ open class ALKConversationViewModel: NSObject, Localizable {
             } else {
                 height = ALKFriendVideoCell.rowHeigh(viewModel: messageModel, width: maxWidth)
             }
-            return height.cached(with: messageModel.identifier)
+            return height.cached(with: cacheIdentifier)
         case .cardTemplate:
             if messageModel.isMyMessage {
                 return
-                    ALKMyGenericCardCell
+                    ALKMyGenericCardMessageCell
                         .rowHeigh(viewModel: messageModel, width: maxWidth)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
-                    ALKFriendGenericCardCell
+                    ALKFriendGenericCardMessageCell
                         .rowHeigh(viewModel: messageModel, width: maxWidth)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .faqTemplate:
             guard let faqMessage = messageModel.faqMessage() else { return 0 }
             if messageModel.isMyMessage {
-                return SentFAQMessageCell.rowHeight(model: faqMessage).cached(with: messageModel.identifier)
+                return SentFAQMessageCell.rowHeight(model: faqMessage).cached(with: cacheIdentifier)
             } else {
-                return ReceivedFAQMessageCell.rowHeight(model: faqMessage).cached(with: messageModel.identifier)
+                return ReceivedFAQMessageCell.rowHeight(model: faqMessage).cached(with: cacheIdentifier)
             }
+
         case .quickReply:
             if messageModel.isMyMessage {
                 return
-                    ALKMyQuickReplyCell
+                    ALKMyMessageQuickReplyCell
                         .rowHeight(viewModel: messageModel, maxWidth: UIScreen.main.bounds.width)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
-                    ALKFriendQuickReplyCell
+                    ALKFriendMessageQuickReplyCell
                         .rowHeight(viewModel: messageModel, maxWidth: UIScreen.main.bounds.width)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .button:
             if messageModel.isMyMessage {
                 return
                     ALKMyMessageButtonCell
                         .rowHeigh(viewModel: messageModel, width: UIScreen.main.bounds.width)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
                     ALKFriendMessageButtonCell
                         .rowHeigh(viewModel: messageModel, width: UIScreen.main.bounds.width)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .listTemplate:
             if messageModel.isMyMessage {
                 return
-                    ALKMyListTemplateCell
+                    ALKMyMessageListTemplateCell
                         .rowHeight(viewModel: messageModel, maxWidth: UIScreen.main.bounds.width)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
-                    ALKFriendListTemplateCell
+                    ALKFriendMessageListTemplateCell
                         .rowHeight(viewModel: messageModel, maxWidth: UIScreen.main.bounds.width)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .document:
             if messageModel.isMyMessage {
                 return
                     ALKMyDocumentCell
                         .rowHeigh(viewModel: messageModel, width: maxWidth)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
                     ALKFriendDocumentCell
                         .rowHeigh(viewModel: messageModel, width: maxWidth)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .contact:
             if messageModel.isMyMessage {
                 return
                     ALKMyContactMessageCell
                         .rowHeight()
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
                     ALKFriendContactMessageCell
                         .rowHeight()
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .imageMessage:
             guard let imageMessage = messageModel.imageMessage() else { return 0 }
@@ -396,12 +414,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 return
                     SentImageMessageCell
                         .rowHeight(model: imageMessage)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
                     ReceivedImageMessageCell
                         .rowHeight(model: imageMessage)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
         case .allButtons:
             guard let model = messageModel.allButtons() else { return 0 }
@@ -409,19 +427,22 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 return
                     SentButtonsCell
                         .rowHeight(model: model)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             } else {
                 return
                     ReceivedButtonsCell
                         .rowHeight(model: model)
-                        .cached(with: messageModel.identifier)
+                        .cached(with: cacheIdentifier)
             }
+        case .form:
+            return 0
         }
     }
 
     open func nextPage() {
         if isSearch {
             loadSearchMessages()
+            return
         }
         guard !isOpenGroup else {
             loadOpenGroupMessages()
@@ -483,14 +504,26 @@ open class ALKConversationViewModel: NSObject, Localizable {
             notificationView.noDataConnectionNotificationView()
             return
         }
-        /// For email attachments url is to be used directly
-        if message.source == emailSourceType, let url = message.fileMetaInfo?.url {
+        // if ALApplozicSettings.isS3StorageServiceEnabled or ALApplozicSettings.isGoogleCloudServiceEnabled is true its private url we wont be able to download it directly.
+        let serviceEnabled = ALApplozicSettings.isS3StorageServiceEnabled() || ALApplozicSettings.isGoogleCloudServiceEnabled()
+
+        if let url = message.fileMetaInfo?.url,
+            !serviceEnabled {
             let httpManager = ALKHTTPManager()
             httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate
             let task = ALKDownloadTask(downloadUrl: url, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
             httpManager.downloadImage(task: task)
+            httpManager.downloadCompleted = { [weak self] task in
+                guard let weakSelf = self, let identifier = task.identifier else { return }
+                var msg = weakSelf.messageForRow(identifier: identifier)
+                if ThumbnailIdentifier.hasPrefix(in: identifier) {
+                    msg?.fileMetaInfo?.thumbnailFilePath = task.filePath
+                } else {
+                    msg?.filePath = task.filePath
+                }
+            }
             return
         }
         ALMessageClientService().downloadImageUrl(message.fileMetaInfo?.blobKey) { fileUrl, error in
@@ -568,8 +601,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
         }
     }
 
-    open func updateGroup(groupName: String, groupImage: String, friendsAdded: [ALKFriendViewModel]) {
-        if !groupName.isEmpty || !groupImage.isEmpty {
+    open func updateGroup(groupName: String, groupImage: String?, friendsAdded: [ALKFriendViewModel]) {
+        if !groupName.isEmpty || groupImage != nil {
             updateGroupInfo(groupName: groupName, groupImage: groupImage, completion: { success in
                 self.updateInfo()
                 guard success, !friendsAdded.isEmpty else { return }
@@ -620,7 +653,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     open func updateSendStatus(message: ALMessage) {
         let filteredList = alMessages.filter { $0 == message }
-        if let alMessage = filteredList.first, let index = alMessages.index(of: alMessage) {
+        if let alMessage = filteredList.first, let index = alMessages.firstIndex(of: alMessage) {
             alMessage.sentToServer = true
             alMessages[index] = alMessage
             messageModels[index] = alMessage.messageModel
@@ -775,17 +808,21 @@ open class ALKConversationViewModel: NSObject, Localizable {
         let clientService = ALMessageClientService()
         let messageService = ALMessageDBService()
         let alHandler = ALDBHandler.sharedInstance()
-        var dbMessage: DB_Message?
-        do {
-            dbMessage = try messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message
-        } catch {}
-        dbMessage?.inProgress = 1
-        dbMessage?.isUploadFailed = 0
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {}
-        print("content type: ", alMessage.fileMeta.contentType)
-        print("file path: ", alMessage.imageFilePath)
+        guard let dbMessage = messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message else {
+            return
+        }
+
+        dbMessage.inProgress = 1
+        dbMessage.isUploadFailed = 0
+
+        let error = alHandler?.saveContext()
+        if error != nil {
+            print("Not saved due to error \(String(describing: error))")
+            return
+        }
+
+        print("content type: ", alMessage.fileMeta.contentType ?? "")
+        print("file path: ", alMessage.imageFilePath ?? "")
         clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
             urlStr, error in
             guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr) else {
@@ -815,13 +852,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
         let alMessage = alMessages[indexPath.section]
         let messageService = ALMessageDBService()
         let alHandler = ALDBHandler.sharedInstance()
-        var dbMessage: DB_Message?
-        do {
-            dbMessage = try messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message
-        } catch {
-            NSLog("Message not found")
-        }
-        guard let dbMessagePresent = dbMessage, let message = messageService.createMessageEntity(dbMessagePresent) else { return }
+        guard let dbMessage = messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message,
+            let message = messageService.createMessageEntity(dbMessage) else { return }
 
         guard let fileInfo = responseDict as? [String: Any] else { return }
         if ALApplozicSettings.isS3StorageServiceEnabled() {
@@ -831,10 +863,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
             message.fileMeta.populate(fileMeta)
         }
         message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
+
+        let error = alHandler?.saveContext()
+        if error != nil {
+            print("Not saved due to error \(String(describing: error))")
+            return
         }
 
         send(alMessage: message) {
@@ -908,17 +941,16 @@ open class ALKConversationViewModel: NSObject, Localizable {
         let clientService = ALMessageClientService()
         let messageService = ALMessageDBService()
         let alHandler = ALDBHandler.sharedInstance()
-        var dbMessage: DB_Message?
-        do {
-            dbMessage = try messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message
-        } catch {
+
+        guard let dbMessage = messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message else {
             return
         }
-        dbMessage?.inProgress = 1
-        dbMessage?.isUploadFailed = 0
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
+
+        dbMessage.inProgress = 1
+        dbMessage.isUploadFailed = 0
+        let error = alHandler?.saveContext()
+        if error != nil {
+            print("Not saved due to error \(String(describing: error))")
             return
         }
         NSLog("content type: ", alMessage.fileMeta.contentType)
@@ -945,15 +977,16 @@ open class ALKConversationViewModel: NSObject, Localizable {
         let clientService = ALMessageClientService()
         let messageService = ALMessageDBService()
         let alHandler = ALDBHandler.sharedInstance()
-        var dbMessage: DB_Message?
-        do {
-            dbMessage = try messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message
-        } catch {}
-        dbMessage?.inProgress = 1
-        dbMessage?.isUploadFailed = 0
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {}
+        guard let dbMessage = messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message else {
+            return
+        }
+        dbMessage.inProgress = 1
+        dbMessage.isUploadFailed = 0
+        let error = alHandler?.saveContext()
+        if error != nil {
+            print("Not saved due to error \(String(describing: error))")
+            return
+        }
         NSLog("content type: ", alMessage.fileMeta.contentType)
         NSLog("file path: ", alMessage.imageFilePath)
         clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
@@ -1053,7 +1086,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     open func getIndexpathFor(message: ALKMessageModel) -> IndexPath? {
-        guard let index = messageModels.index(of: message)
+        guard let index = messageModels.firstIndex(of: message)
         else { return nil }
         return IndexPath(row: 0, section: index)
     }
@@ -1151,38 +1184,113 @@ open class ALKConversationViewModel: NSObject, Localizable {
     func loadSearchMessages() {
         var time: NSNumber?
         if let messageList = alMessageWrapper.getUpdatedMessageArray(), messageList.count > 1 {
-            time = (messageList.firstObject as! ALMessage).createdAtTime
+            guard let message = messageList.firstObject as? ALMessage else {
+                return
+            }
+            time = message.createdAtTime
         }
         let messageListRequest = MessageListRequest()
         messageListRequest.userId = contactId
         messageListRequest.channelKey = channelKey
         messageListRequest.conversationId = conversationId
         messageListRequest.endTimeStamp = time
-        ALMessageClientService().getMessageList(forUser: messageListRequest, isSearch: true) { messages, error in
-            guard error == nil, let messages = messages else {
-                self.delegate?.loadingFinished(error: error)
+        ALMessageClientService().getMessageList(forUser: messageListRequest, isSearch: true) { [weak self] messages, error in
+            guard error == nil, let messages = messages, let weakSelf = self else {
+                self?.delegate?.loadingFinished(error: error)
                 return
             }
-            if let list = self.alMessageWrapper.getUpdatedMessageArray(), list.count > 1, let newMessages = messages as? [ALMessage] {
-                for mesg in newMessages {
-                    guard let msg = self.alMessages.first, let time = Double(msg.createdAtTime.stringValue) else { continue }
-                    if let msgTime = Double(mesg.createdAtTime.stringValue), time <= msgTime {
-                        continue
+
+            if let list = weakSelf.alMessageWrapper.getUpdatedMessageArray(), list.count > 1 {
+                weakSelf.fetchReplyMessages(from: messages) { [weak self] result in
+                    guard let replyWeakSelf = self else {
+                        self?.delegate?.loadingFinished(error: nil)
+                        return
                     }
-                    self.alMessageWrapper
-                        .getUpdatedMessageArray()
-                        .insert(mesg, at: 0)
-                    self.alMessages.insert(mesg, at: 0)
-                    self.messageModels.insert(mesg.messageModel, at: 0)
+                    switch result {
+                    case let .success(messagesArray):
+                        for mesg in messagesArray as! [ALMessage] {
+                            guard let msg = self?.alMessages.first, let time = Double(msg.createdAtTime.stringValue) else { continue }
+                            if let msgTime = Double(mesg.createdAtTime.stringValue), time <= msgTime {
+                                continue
+                            }
+                            replyWeakSelf.alMessageWrapper
+                                .getUpdatedMessageArray()
+                                .insert(mesg, at: 0)
+                            replyWeakSelf.alMessages.insert(mesg, at: 0)
+                            replyWeakSelf.messageModels.insert(mesg.messageModel, at: 0)
+                        }
+                        replyWeakSelf.delegate?.loadingFinished(error: nil)
+                    case let .failure(error):
+                        print("Error in fetching messages:", error.localizedDescription)
+                        replyWeakSelf.delegate?.loadingFinished(error: nil)
+                    }
                 }
-                self.delegate?.loadingFinished(error: nil)
                 return
             }
-            self.alMessages = messages.reversed() as! [ALMessage]
-            self.alMessageWrapper.addObject(toMessageArray: messages)
-            let models = self.alMessages.map { $0.messageModel }
-            self.messageModels = models
-            self.delegate?.loadingFinished(error: nil)
+
+            weakSelf.fetchReplyMessages(from: messages) { [weak self] result in
+                guard let replyWeakSelf = self else {
+                    self?.delegate?.loadingFinished(error: nil)
+                    return
+                }
+                switch result {
+                case let .success(messagesArray):
+                    replyWeakSelf.alMessages = messagesArray.reversed() as! [ALMessage]
+                    replyWeakSelf.alMessageWrapper.addObject(toMessageArray: messages)
+                    let models = replyWeakSelf.alMessages.map { $0.messageModel }
+                    replyWeakSelf.messageModels = models
+                    replyWeakSelf.delegate?.loadingFinished(error: nil)
+                case let .failure(error):
+                    print("Error in fetching messages:", error.localizedDescription)
+                    replyWeakSelf.delegate?.loadingFinished(error: nil)
+                }
+            }
+        }
+    }
+
+    func fetchReplyMessages(from messages: NSMutableArray, _ completion: @escaping (Result<NSMutableArray, Error>) -> Void) {
+        let service = ALMessageService()
+        let messageDb = ALMessageDBService()
+        let replyMessageKeys = NSMutableArray()
+        let contactService = ALContactService()
+        let contactDBService = ALContactDBService()
+
+        let alUserService = ALUserService()
+        if let newMessages = messages as? [ALMessage] {
+            for msg in newMessages {
+                if let metadata = msg.metadata,
+                    let replyKey = metadata.value(forKey: AL_MESSAGE_REPLY_KEY) as? String,
+                    messageDb.getMessageByKey("key", value: replyKey) == nil,
+                    !replyMessageKeys.contains(replyKey) {
+                    replyMessageKeys.add(replyKey)
+                }
+            }
+
+            service.fetchReplyMessages(replyMessageKeys) { replyMessages in
+                var userNotPresentIds = [String]()
+
+                if let newMessages = replyMessages as? [ALMessage], !newMessages.isEmpty {
+                    for replyMessage in newMessages {
+                        if !contactService.isContactExist(replyMessage.to) {
+                            userNotPresentIds.append(replyMessage.to)
+                        }
+                    }
+                }
+
+                guard !userNotPresentIds.isEmpty else {
+                    completion(.success(messages))
+                    return
+                }
+                alUserService.fetchAndupdateUserDetails(NSMutableArray(array: userNotPresentIds), withCompletion: { userDetailArray, theError in
+
+                    guard theError == nil else {
+                        completion(.failure(theError!))
+                        return
+                    }
+                    contactDBService.addUserDetails(userDetailArray)
+                    completion(.success(messages))
+                })
+            }
         }
     }
 
@@ -1248,11 +1356,32 @@ open class ALKConversationViewModel: NSObject, Localizable {
         return names
     }
 
+    func sendFile(at url: URL, fileName: String, metadata: [AnyHashable: Any]?) -> (ALMessage?, IndexPath?) {
+        var fileData: Data?
+        do {
+            fileData = try Data(contentsOf: url)
+        } catch {
+            print("Failed to read the content of the file at path: \(url) due to error: \(error.localizedDescription)")
+        }
+        guard fileData != nil else { return (nil, nil) }
+        guard let alMessage = processAttachment(
+            filePath: url,
+            text: "",
+            contentType: Int(ALMESSAGE_CONTENT_ATTACHMENT),
+            metadata: metadata,
+            fileName: fileName
+        ) else {
+            return (nil, nil)
+        }
+        addToWrapper(message: alMessage)
+        return (alMessage, IndexPath(row: 0, section: messageModels.count - 1))
+    }
+
     // MARK: - Private Methods
 
     private func updateGroupInfo(
         groupName: String,
-        groupImage: String,
+        groupImage: String?,
         completion: @escaping (Bool) -> Void
     ) {
         guard let groupId = groupKey() else { return }
@@ -1411,20 +1540,27 @@ open class ALKConversationViewModel: NSObject, Localizable {
         return info
     }
 
-    private func processAttachment(filePath: URL, text _: String, contentType: Int, isVideo _: Bool = false, metadata: [AnyHashable: Any]?) -> ALMessage? {
+    private func processAttachment(
+        filePath: URL,
+        text _: String,
+        contentType: Int,
+        isVideo _: Bool = false,
+        metadata: [AnyHashable: Any]?,
+        fileName: String? = nil
+    ) -> ALMessage? {
         let alMessage = getMessageToPost()
         alMessage.metadata = modfiedMessageMetadata(alMessage: alMessage, metadata: metadata)
         alMessage.contentType = Int16(contentType)
         alMessage.fileMeta = getFileMetaInfo()
         alMessage.imageFilePath = filePath.lastPathComponent
-        alMessage.fileMeta.name = String(format: "AUD-5-%@", filePath.lastPathComponent)
-        if let contactId = contactId {
+        alMessage.fileMeta.name = fileName ?? String(format: "AUD-5-%@", filePath.lastPathComponent)
+        if fileName == nil, let contactId = contactId {
             alMessage.fileMeta.name = String(format: "%@-5-%@", contactId, filePath.lastPathComponent)
         }
         let pathExtension = filePath.pathExtension
         let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue()
         let mimetype = (UTTypeCopyPreferredTagWithClass(uti!, kUTTagClassMIMEType)?.takeRetainedValue()) as String?
-        alMessage.fileMeta.contentType = mimetype
+        alMessage.fileMeta.contentType = mimetype ?? "application/zip"
         if contentType == ALMESSAGE_CONTENT_VCARD {
             alMessage.fileMeta.contentType = "text/x-vcard"
         }
@@ -1437,15 +1573,18 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
         let dbHandler = ALDBHandler.sharedInstance()
         let messageService = ALMessageDBService()
-        let messageEntity = messageService.createMessageEntityForDBInsertion(with: alMessage)
-        do {
-            try dbHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
+
+        guard let messageEntity = messageService.createMessageEntityForDBInsertion(with: alMessage) else {
             return nil
         }
-        alMessage.msgDBObjectId = messageEntity?.objectID
-        return alMessage
+        let error = dbHandler?.saveContext()
+
+        if error == nil {
+            alMessage.msgDBObjectId = messageEntity.objectID
+            return alMessage
+        }
+        print("Not saved due to error \(String(describing: error))")
+        return nil
     }
 
     private func createJson(dict: [String: String]) -> String? {
@@ -1487,7 +1626,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         if !filteredList.isEmpty {
             let message = filteredList.first
             message?.status = status as NSNumber
-            guard let model = message?.messageModel, let index = messageModels.index(of: model) else { return }
+            guard let model = message?.messageModel, let index = messageModels.firstIndex(of: model) else { return }
             messageModels[index] = model
             delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index))
         }
