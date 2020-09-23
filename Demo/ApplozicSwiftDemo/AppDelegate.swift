@@ -9,6 +9,7 @@
 import Applozic
 import ApplozicSwift
 import UIKit
+import AppLovinSDK
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
