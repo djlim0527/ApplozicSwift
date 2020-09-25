@@ -19,7 +19,7 @@ extension ALKConversationViewController: ALAlertButtonClickProtocol {
                 return
             }
 
-            let userService = ALUserService()
+            let userService = ALApplozicUserService()
             let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
             activityIndicator.center = CGPoint(x: view.bounds.size.width / 2,
                                                y: view.bounds.size.height / 2)
