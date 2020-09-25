@@ -466,7 +466,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     open func checkUserBlock() {
         guard !viewModel.isGroup, let contactId = viewModel.contactId else { return }
-        ALUserService().getUserDetail(contactId) { contact in
+        ALApplozicUserService().getUserDetail(contactId) { contact in
             guard let contact = contact, contact.block else {
                 self.chatBar.enableChat()
                 return

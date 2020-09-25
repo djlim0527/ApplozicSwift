@@ -302,7 +302,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
             leftButtons = [deleteButton]
             return
         }
-        ALUserService().getUserDetail(viewModel.contactId, withCompletion: { contact in
+        ALApplozicUserService().getUserDetail(viewModel.contactId, withCompletion: { contact in
             guard let contact = contact else {
                 self.leftButtons = [deleteButton]
                 return

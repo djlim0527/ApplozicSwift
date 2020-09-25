@@ -235,7 +235,7 @@ public final class ALKConversationListViewModel: NSObject, ALKConversationListVi
             let muteRequest = ALMuteRequest()
             muteRequest.userId = contact.userId
             muteRequest.notificationAfterTime = tillTime as NSNumber
-            ALUserService().muteUser(muteRequest) { _, error in
+            ALApplozicUserService().muteUser(muteRequest) { _, error in
                 if error != nil {
                     withCompletion(false)
                 }
@@ -247,7 +247,7 @@ public final class ALKConversationListViewModel: NSObject, ALKConversationListVi
     }
 
     public func block(conversation: ALMessage, withCompletion: @escaping (Error?, Bool) -> Void) {
-        ALUserService().blockUser(conversation.contactIds) { error, _ in
+        ALApplozicUserService().blockUser(conversation.contactIds) { error, _ in
             guard let error = error else {
                 print("UserId \(String(describing: conversation.contactIds)) is successfully blocked")
                 withCompletion(nil, true)
@@ -259,7 +259,7 @@ public final class ALKConversationListViewModel: NSObject, ALKConversationListVi
     }
 
     public func unblock(conversation: ALMessage, withCompletion: @escaping (Error?, Bool) -> Void) {
-        ALUserService().unblockUser(conversation.contactIds) { error, _ in
+        ALApplozicUserService().unblockUser(conversation.contactIds) { error, _ in
             guard let error = error else {
                 print("UserId \(String(describing: conversation.contactIds)) is successfully unblocked")
                 withCompletion(nil, true)
@@ -271,7 +271,7 @@ public final class ALKConversationListViewModel: NSObject, ALKConversationListVi
     }
 
     public func updateUserDetail(userId: String, completion: @escaping (Bool) -> Void) {
-        ALUserService.updateUserDetail(userId, withCompletion: {
+        ALApplozicUserService.updateUserDetail(userId, withCompletion: {
             userDetail in
             guard let detail = userDetail else {
                 completion(false)

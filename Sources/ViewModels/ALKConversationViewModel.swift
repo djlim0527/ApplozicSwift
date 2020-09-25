@@ -592,7 +592,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
             })
         } else if let contactId = contactId {
-            ALUserService.sharedInstance().markConversation(asRead: contactId, withCompletion: {
+            ALApplozicUserService.sharedInstance().markConversation(asRead: contactId, withCompletion: {
                 _, error in
                 if let error = error {
                     NSLog("error while marking conversation read: \(error)")
@@ -1096,7 +1096,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     func updateUserDetail(_ userId: String) {
-        ALUserService.updateUserDetail(userId, withCompletion: {
+        ALApplozicUserService.updateUserDetail(userId, withCompletion: {
             userDetail in
             guard userDetail != nil else { return }
             guard
@@ -1126,7 +1126,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 completion(self.conversationProfileFrom(contact: contact, channel: nil))
             }
         } else if contactId != nil {
-            ALUserService().getUserDetail(contactId) { contact in
+            ALApplozicUserService().getUserDetail(contactId) { contact in
                 guard let contact = contact else {
                     print("Error while fetching contact details")
                     completion(nil)
@@ -1255,7 +1255,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         let contactService = ALContactService()
         let contactDBService = ALContactDBService()
 
-        let alUserService = ALUserService()
+        let alUserService = ALApplozicUserService()
         if let newMessages = messages as? [ALMessage] {
             for msg in newMessages {
                 if let metadata = msg.metadata,
@@ -1468,7 +1468,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             }
 
             if !contactsNotPresent.isEmpty {
-                let userService = ALUserService()
+                let userService = ALApplozicUserService()
                 userService.fetchAndupdateUserDetails(NSMutableArray(array: contactsNotPresent), withCompletion: { userDetails, _ in
                     contactDbService.addUserDetails(userDetails)
                     completion(alMessages)
