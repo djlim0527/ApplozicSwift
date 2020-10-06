@@ -211,14 +211,14 @@ open class ALKMyMessageCell: ALKMessageCell {
         ])
     }
 
-    open override func setupStyle() {
+    override open func setupStyle() {
         super.setupStyle()
         messageView.setStyle(ALKMessageStyle.sentMessage)
         bubbleView.setStyle(ALKMessageStyle.sentBubble, isReceiverSide: false)
         setStatusStyle(statusView: stateView, ALKMessageStyle.messageStatus)
     }
 
-    open override func update(viewModel: ALKMessageViewModel) {
+    override open func update(viewModel: ALKMessageViewModel) {
         super.update(
             viewModel: viewModel,
             messageStyle: ALKMessageStyle.sentMessage,
@@ -245,7 +245,8 @@ open class ALKMyMessageCell: ALKMessageCell {
 
     class func rowHeigh(viewModel: ALKMessageViewModel,
                         width: CGFloat,
-                        displayNames: ((Set<String>) -> ([String: String]?))?) -> CGFloat {
+                        displayNames: ((Set<String>) -> ([String: String]?))?) -> CGFloat
+    {
         /// Calculating messageHeight
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.widthPadding
         let rightSpacing = Padding.BubbleView.right + bubbleViewRightPadding
@@ -262,7 +263,8 @@ open class ALKMyMessageCell: ALKMessageCell {
 
         let totalHeight = messageHeight + heightPadding
         guard let metadata = viewModel.metadata,
-            metadata[AL_MESSAGE_REPLY_KEY] as? String != nil else {
+            metadata[AL_MESSAGE_REPLY_KEY] as? String != nil
+        else {
             return totalHeight
         }
         return totalHeight + Padding.ReplyView.height

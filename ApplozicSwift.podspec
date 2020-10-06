@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'ApplozicSwift'
-  s.version = '5.10.0'
+  s.version = '5.10.1'
   s.license = { :type => "BSD 3-Clause", :file => "LICENSE" }
   s.summary = 'Applozic Swift Kit'
   s.homepage = 'https://github.com/AppLozic/ApplozicSwift'
@@ -25,6 +25,7 @@ Pod::Spec.new do |s|
     complete.dependency 'Kingfisher', '~> 5.14.0'
     complete.dependency 'MGSwipeTableCell', '~> 1.6.11'
     complete.dependency 'Applozic', '~> 7.10.0' 
+    complete.dependency 'Applozic', '~> 7.11.0'
     complete.dependency 'ApplozicSwift/RichMessageKit'
   end
 end

@@ -38,13 +38,14 @@ class ListTemplateElementView: UIView {
     var item: ListTemplate.Element?
     var selected: ((_ text: String?, _ action: ListTemplate.Action) -> Void)?
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
         setupStyle()
         setupAction()
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -166,6 +167,7 @@ class ListTemplateView: UIView {
         setupStyle()
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -160,7 +160,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         setupConstraints()
     }
 
-    public override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+    override public func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
         guard viewModel != nil else {
             return
@@ -174,7 +174,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         badgeNumberView.setBackgroundColor(.background(.main))
     }
 
-    public override func setSelected(_ selected: Bool, animated: Bool) {
+    override public func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         guard viewModel != nil else {
             return
@@ -190,14 +190,16 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
 
     private func isConversationMuted(viewModel: ALKChatViewModelProtocol) -> Bool {
         if let channelKey = viewModel.channelKey,
-            let channel = ALChannelService().getChannelByKey(channelKey) {
+            let channel = ALChannelService().getChannelByKey(channelKey)
+        {
             if channel.isNotificationMuted() {
                 return true
             } else {
                 return false
             }
         } else if let contactId = viewModel.contactId,
-            let contact = ALContactService().loadContact(byKey: "userId", value: contactId) {
+            let contact = ALContactService().loadContact(byKey: "userId", value: contactId)
+        {
             if contact.isNotificationMuted() {
                 return true
             } else {
@@ -261,7 +263,8 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         if !viewModel.isGroupChat {
             let contactService = ALContactService()
             guard let contactId = viewModel.contactId,
-                let contact = contactService.loadContact(byKey: "userId", value: contactId) else {
+                let contact = contactService.loadContact(byKey: "userId", value: contactId)
+            else {
                 return
             }
 
@@ -335,7 +338,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
     }
 
     private func setupRightSwippableButtons(_ viewModel: ALKChatViewModelProtocol) {
-        let muteButton: MGSwipeButton = MGSwipeButton(type: .custom)
+        let muteButton = MGSwipeButton(type: .custom)
         muteButton.backgroundColor = UIColor(netHex: 0x999999)
         if isConversationMuted(viewModel: viewModel) {
             muteButton.setImage(UIImage(named: "icon_mute_inactive", in: Bundle.applozic, compatibleWith: nil), for: .normal)
@@ -440,6 +443,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         badgeNumberView.layer.cornerRadius = badgeNumberView.frame.size.height / 2.0
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -450,7 +454,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         comingSoonDelegate = delegate
     }
 
-    public override func setEditing(_ editing: Bool, animated: Bool) {
+    override public func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
     }
 

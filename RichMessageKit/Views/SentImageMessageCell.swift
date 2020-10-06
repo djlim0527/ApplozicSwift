@@ -82,7 +82,7 @@ public class SentImageMessageCell: UITableViewCell {
 
     // MARK: - Initializer
 
-    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    override public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         messageViewPadding = Padding(left: Config.MessageView.leftPadding,
                                      right: Config.MessageView.rightPadding,
                                      top: Config.MessageView.topPadding,
@@ -95,6 +95,7 @@ public class SentImageMessageCell: UITableViewCell {
         backgroundColor = .clear
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -113,10 +114,10 @@ public class SentImageMessageCell: UITableViewCell {
         messageViewHeight.constant = isMessageEmpty ? 0 : SentMessageViewSizeCalculator().rowHeight(messageModel: model.message, maxWidth: Config.maxWidth, padding: messageViewPadding)
 
         if !isMessageEmpty {
-            messageView.update(model: model.message.text ?? "")
+            messageView.update(model: model.message)
         }
 
-        messageView.updateHeighOfView(hideView: isMessageEmpty, model: model.message.text ?? "")
+        messageView.updateHeighOfView(hideView: isMessageEmpty, model: model.message)
 
         imageBubbleHeight.constant = ImageBubbleSizeCalculator().rowHeight(model: model, maxWidth: Config.maxWidth)
 

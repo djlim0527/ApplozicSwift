@@ -20,7 +20,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             guard viewModel != nil else { return }
             if updatedVM.contactId == viewModel.contactId,
                 updatedVM.channelKey == viewModel.channelKey,
-                updatedVM.conversationProxy == viewModel.conversationProxy {
+                updatedVM.conversationProxy == viewModel.conversationProxy
+            {
                 isFirstTime = false
             } else {
                 isFirstTime = true
@@ -79,7 +80,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     fileprivate var audioPlayer = ALKAudioPlayer()
 
-    fileprivate let moreBar: ALKMoreBar = ALKMoreBar(frame: .zero)
+    fileprivate let moreBar = ALKMoreBar(frame: .zero)
     fileprivate lazy var typingNoticeView = TypingNotice(localizedStringFileName: configuration.localizedStringFileName)
     fileprivate var alMqttConversationService: ALMQTTConversationService!
     fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
@@ -180,7 +181,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
-    open override func addObserver() {
+    override open func addObserver() {
         NotificationCenter.default.addObserver(
             forName: UIResponder.keyboardWillShowNotification,
             object: nil,
@@ -192,8 +193,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 guard
                     let weakSelf = self,
                     weakSelf.chatBar.isTextViewFirstResponder,
-                    let keyboardSize = (keyboardFrameValue as? NSValue)?.cgRectValue else {
-                        self?.scrollTableViewUpForActiveField(notification: notification)
+                    let keyboardSize = (keyboardFrameValue as? NSValue)?.cgRectValue
+                else {
+                    self?.scrollTableViewUpForActiveField(notification: notification)
                     return
                 }
 
@@ -315,7 +317,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             let alChannelService = ALChannelService()
             guard let key = weakSelf.viewModel.channelKey,
                 let channel = alChannelService.getChannelByKey(key),
-                channel.name != nil else {
+                channel.name != nil
+            else {
                 return
             }
             let profile = weakSelf.viewModel.conversationProfileFrom(contact: nil, channel: channel)
@@ -337,7 +340,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    open override func removeObserver() {
+    override open func removeObserver() {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "newMessageNotification"), object: nil)
@@ -352,7 +355,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
 
-    open override func viewWillAppear(_ animated: Bool) {
+    override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
@@ -394,16 +397,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         print("id: ", viewModel.messageModels.first?.contactId as Any)
     }
 
-    open override func viewDidAppear(_: Bool) {}
+    override open func viewDidAppear(_: Bool) {}
 
-    open override func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         setupConstraints()
         setRichMessageKitTheme()
         setupProfanityFilter()
     }
 
-    open override func viewDidLayoutSubviews() {
+    override open func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         if isFirstTime, tableView.isCellVisible(section: 0, row: 0) {
             tableView.scrollToBottomByOfset(animated: false)
@@ -411,7 +414,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    open override func viewWillDisappear(_ animated: Bool) {
+    override open func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopAudioPlayer()
         chatBar.stopRecording()
@@ -432,7 +435,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    open override func showAccountSuspensionView() {
+    override open func showAccountSuspensionView() {
         let accountVC = ALKAccountSuspensionController()
         accountVC.closePressed = { [weak self] in
             self?.dismiss(animated: true, completion: nil)
@@ -1161,16 +1164,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func richButtonSelected(index: Int,
                             title: String,
                             message: ALKMessageViewModel,
-                            isButtonClickDisabled: Bool) {
-
+                            isButtonClickDisabled: Bool)
+    {
         guard !isButtonClickDisabled else {
             return
         }
         guard let payload = message.payloadFromMetadata()?[index],
             let action = payload["action"] as? [String: Any],
             let type = action["type"] as? String
-            else {
-                return
+        else {
+            return
         }
         switch type {
         case "link":
@@ -1462,38 +1465,39 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    func formSubmitButtonSelected(formSubmitData: FormDataSubmit?, messageModel: ALKMessageViewModel, isButtonClickDisabled: Bool ) {
-
+    func formSubmitButtonSelected(formSubmitData: FormDataSubmit?, messageModel: ALKMessageViewModel, isButtonClickDisabled: Bool) {
         guard let formData = formSubmitData,
             !formData.multiSelectFields.isEmpty ||
-                !formData.textFields.isEmpty ||
-                !formData.singleSelectFields.isEmpty else {
-                    print("Invalid empty form data for submit")
-                    return
+            !formData.textFields.isEmpty ||
+            !formData.singleSelectFields.isEmpty
+        else {
+            print("Invalid empty form data for submit")
+            return
         }
 
         guard !isButtonClickDisabled,
-            let formTemplate = messageModel.formTemplate() else {
-                return
+            let formTemplate = messageModel.formTemplate()
+        else {
+            return
         }
-        var postFormData = [String : Any]()
-        var requestType : String?
-        var formAction : String?
-        var message : String?
+        var postFormData = [String: Any]()
+        var requestType: String?
+        var formAction: String?
+        var message: String?
 
         for element in formTemplate.elements {
-
             if element.contentType == .hidden,
                 let elementData = element.data,
                 let hiddenName = elementData.name,
-                let hiddenValue = elementData.value {
+                let hiddenValue = elementData.value
+            {
                 postFormData[hiddenName] = hiddenValue
             }
 
             if element.contentType == .submit,
                 let elementData = element.data,
-                let action = elementData.action {
-
+                let action = elementData.action
+            {
                 if let formTemplateRequest = action.requestType {
                     requestType = formTemplateRequest
                 }
@@ -1505,11 +1509,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     message = formTemplateMessage
                 }
             }
-
         }
 
         guard let viewModelItems = messageModel.formTemplate()?.viewModeItems
-            else { return }
+        else { return }
         for (pos, text) in formData.textFields {
             let element = viewModelItems[pos]
             switch element.type {
@@ -1539,12 +1542,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 return
             }
             var selectedArray = [String]()
-            for selectedPos  in pos {
+            for selectedPos in pos {
                 let value = multiSelect.options[selectedPos].value
                 selectedArray.append(value)
             }
 
-            let data = self.json(from: selectedArray)
+            let data = json(from: selectedArray)
             postFormData[multiSelect.name] = data
         }
 
@@ -1556,13 +1559,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         var formJsonData = [String: Any]()
         formJsonData["formData"] = formJsonValue
 
-        guard let chatContextData = self.getUpdateMessageMetadata(with: formJsonData) else {
+        guard let chatContextData = getUpdateMessageMetadata(with: formJsonData) else {
             print("Failed to convert the chat context data to json")
             return
         }
 
         if let type = requestType,
-            type == "postBackToBotPlatform" {
+            type == "postBackToBotPlatform"
+        {
             if let messageString = message {
                 viewModel.send(message: messageString, metadata: chatContextData)
             }
@@ -1573,19 +1577,19 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             guard
                 let urlString = formAction,
                 let url = URL(string: urlString)
-                else {
-                    print("URL for posting is not valid")
-                    return
+            else {
+                print("URL for posting is not valid")
+                return
             }
             var request: URLRequest!
-            guard let jsonData = try? JSONSerialization.data(withJSONObject:chatContextData),
+            guard let jsonData = try? JSONSerialization.data(withJSONObject: chatContextData),
                 let jsonString = String(data: jsonData, encoding: .utf8),
                 let data = jsonString.data(using: .utf8),
                 let urlRequest = postRequestUsing(url: url, data: data)
-                else { return }
+            else { return }
 
             request = urlRequest
-            if  requestType == "json" {
+            if requestType == "json" {
                 let contentType = "application/json"
                 request.addValue(contentType, forHTTPHeaderField: "Content-Type")
                 requestHandler(request) { _, _, _ in }
@@ -1611,7 +1615,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         return metadata
     }
 
-    func json(from object:Any) -> String? {
+    func json(from object: Any) -> String? {
         guard let data = try? JSONSerialization.data(withJSONObject: object, options: []) else {
             return nil
         }
@@ -1768,7 +1772,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         isChannelLeft()
 
         if isViewLoadedFromTappingOnNotification {
-            let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
+            let indexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
             if let lastMessage = viewModel.messageModels.last {
                 reloadIfFormMessage(message: lastMessage, indexPath: indexPath)
             }
@@ -1776,8 +1780,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             isViewLoadedFromTappingOnNotification = false
         } else {
             if tableView.isCellVisible(section: viewModel.messageModels.count - 2, row: 0) { // 1 for recent added msg and 1 because it starts with 0
-
-                let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
+                let indexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
                 if let lastMessage = viewModel.messageModels.last {
                     reloadIfFormMessage(message: lastMessage, indexPath: indexPath)
                 }
@@ -1813,7 +1816,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     // This happens when chatbar's header height increases later on.
     public func showLastMessage() {
         if tableView.isCellVisible(section: viewModel.messageModels.count - 2, row: 0) {
-            let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
+            let indexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
             moveTableViewToBottom(indexPath: indexPath)
         }
     }

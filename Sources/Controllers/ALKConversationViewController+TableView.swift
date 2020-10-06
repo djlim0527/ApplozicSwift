@@ -501,12 +501,12 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     self.activeTextField = textField
                 }
                 cell.update(viewModel: message)
-                cell.tapped = { [weak self] index, name, submitData in
+                cell.tapped = { [weak self] _, _, submitData in
                     guard let weakSelf = self else { return }
                     weakSelf.formSubmitButtonSelected(formSubmitData: submitData,
                                                       messageModel: message,
                                                       isButtonClickDisabled:
-                        weakSelf.configuration.disableRichMessageButtonAction)
+                                                      weakSelf.configuration.disableRichMessageButtonAction)
                 }
                 return cell
             }
@@ -516,17 +516,19 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
     public func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if let message = viewModel.messageForRow(indexPath: indexPath),
             message.messageType == .form,
-            message.formTemplate() != nil {
+            message.formTemplate() != nil
+        {
             return UITableView.automaticDimension
         } else {
             return viewModel.heightForRow(indexPath: indexPath, cellFrame: view.frame, configuration: configuration)
         }
     }
 
-    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         if let message = viewModel.messageForRow(indexPath: indexPath),
             message.messageType == .form,
-            message.formTemplate() != nil {
+            message.formTemplate() != nil
+        {
             return UITableView.automaticDimension
         } else {
             return viewModel.heightForRow(indexPath: indexPath, cellFrame: view.frame, configuration: configuration)
@@ -674,7 +676,8 @@ extension ALKConversationViewController: UICollectionViewDataSource, UICollectio
 
         guard let message = viewModel.messageForRow(indexPath: IndexPath(row: 0, section: collectionView.tag)),
             let template = ALKGenericCardCollectionView.getCardTemplate(message: message),
-            template.count > indexPath.row else {
+            template.count > indexPath.row
+        else {
             return UICollectionViewCell()
         }
 

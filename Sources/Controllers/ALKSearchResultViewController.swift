@@ -27,11 +27,12 @@ public class ALKSearchResultViewController: ALKBaseViewController {
         viewController.delegate = self
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         setupView()
     }

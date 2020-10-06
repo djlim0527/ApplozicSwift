@@ -116,12 +116,24 @@ open class ALKChatBar: UIView, Localizable {
         return view
     }()
 
-    open var micButton: AudioRecordButton = {
-        let button = AudioRecordButton(frame: CGRect())
-        button.layer.masksToBounds = true
-        button.accessibilityIdentifier = "MicButton"
-        return button
-    }()
+    #if SPEECH_REC
+        open lazy var micButton: SpeechToTextButton = {
+            let button = SpeechToTextButton(
+                textView: textView,
+                localizedStringFileName: configuration.localizedStringFileName
+            )
+            button.layer.masksToBounds = true
+            button.accessibilityIdentifier = "MicButton"
+            return button
+        }()
+    #else
+        open var micButton: AudioRecordButton = {
+            let button = AudioRecordButton(frame: CGRect())
+            button.layer.masksToBounds = true
+            button.accessibilityIdentifier = "MicButton"
+            return button
+        }()
+    #endif
 
     open var photoButton: UIButton = {
         let bt = UIButton(type: .custom)
@@ -358,7 +370,7 @@ open class ALKChatBar: UIView, Localizable {
 
     private var isNeedInitText = true
 
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
 
         if isNeedInitText {
@@ -537,6 +549,7 @@ open class ALKChatBar: UIView, Localizable {
         bringSubviewToFront(frameView)
     }
 
+    @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -584,10 +597,14 @@ open class ALKChatBar: UIView, Localizable {
     }
 
     func stopRecording() {
-        soundRec.userDidStopRecording()
-        micButton.isSelected = false
-        soundRec.isHidden = true
-        resetToDefaultPlaceholderText()
+        #if SPEECH_REC
+            toggleButtonInChatBar(hide: false)
+        #else
+            soundRec.userDidStopRecording()
+            micButton.isSelected = false
+            soundRec.isHidden = true
+            resetToDefaultPlaceholderText()
+        #endif
     }
 
     func hideAudioOptionInChatBar() {
@@ -664,7 +681,8 @@ open class ALKChatBar: UIView, Localizable {
             var image = image?.imageFlippedForRightToLeftLayoutDirection()
             image = image?.scale(with: size)
             if tintColor != nil,
-                !chatBarConfiguration.disableButtonTintColor {
+                !chatBarConfiguration.disableButtonTintColor
+            {
                 image = image?.withRenderingMode(.alwaysTemplate)
                 button.imageView?.tintColor = tintColor
             }
@@ -698,8 +716,9 @@ extension ALKChatBar: UITextViewDelegate {
         } else {
             placeHolder.isHidden = true
             placeHolder.alpha = 0
-
-            toggleButtonInChatBar(hide: false)
+            if micButton.states != .recording {
+                toggleButtonInChatBar(hide: false)
+            }
             updateTextViewHeight(textView: textView, text: textView.text)
         }
 
@@ -800,7 +819,9 @@ extension ALKChatBar: ALKAudioRecorderProtocol {
 
 extension ALKChatBar: ALKAudioRecorderViewProtocol {
     public func cancelAudioRecording() {
-        micButton.cancelAudioRecord()
+        #if !SPEECH_REC
+            micButton.cancelAudioRecord()
+        #endif
         stopRecording()
     }
 }
