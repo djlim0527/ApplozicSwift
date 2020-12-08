@@ -27,11 +27,12 @@ public class ALKSearchResultViewController: ALKBaseViewController {
         viewController.delegate = self
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         setupView()
     }
@@ -100,7 +101,7 @@ extension ALKSearchResultViewController: ALKConversationListTableViewDelegate {
         )
         convViewModel.isSearch = true
 
-        let viewController = conversationViewController ?? ALKConversationViewController(configuration: configuration)
+        let viewController = conversationViewController ?? ALKConversationViewController(configuration: configuration, individualLaunch: false)
         viewController.viewModel = convViewModel
         viewController.individualLaunch = false
         conversationViewController = viewController

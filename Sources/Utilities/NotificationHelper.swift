@@ -67,10 +67,14 @@ public class NotificationHelper {
             let topVC = ALPushAssist().topViewController as? ALKConversationViewController,
             let viewModel = topVC.viewModel
         else {
-            guard let topVC = ALPushAssist().topViewController as? ALKReplyController else {
+            guard let topVC = ALPushAssist().topViewController,
+                let navVC = topVC.presentingViewController as? ALKBaseNavigationViewController,
+                let conversationViewController = navVC.topViewController as? ALKConversationViewController,
+                let viewModel = conversationViewController.viewModel
+            else {
                 return false
             }
-            return isChatThreadIsOpen(notification, userId: topVC.userId, groupId: topVC.groupId)
+            return isChatThreadIsOpen(notification, userId: viewModel.contactId, groupId: viewModel.channelKey)
         }
         return isChatThreadIsOpen(notification, userId: viewModel.contactId, groupId: viewModel.channelKey)
     }
@@ -118,6 +122,12 @@ public class NotificationHelper {
     ///   - notification: notification that is tapped.
     public func refreshConversation(_ viewController: ALKConversationViewController, with notification: NotificationData) {
         viewController.unsubscribingChannel()
+        if !isChatThreadIsOpen(notification,
+                               userId: viewController.viewModel.contactId,
+                               groupId: viewController.viewModel.channelKey)
+        {
+            viewController.viewModel.prefilledMessage = nil
+        }
         viewController.viewModel.contactId = notification.userId
         viewController.viewModel.channelKey = notification.groupId
         var convProxy: ALConversationProxy?
@@ -141,13 +151,15 @@ public class NotificationHelper {
              "ALKWebViewController",
              "SelectProfilePicViewController",
              "CNContactPickerViewController",
-             "CAMImagePickerCameraViewController":
+             "CAMImagePickerCameraViewController",
+             "UIDocumentPickerViewController":
             return true
         case _ where topVCName.hasPrefix("ALK"):
             return true
         default:
             if let searchVC = topVC as? UISearchController,
-                searchVC.searchResultsController as? ALKSearchResultViewController != nil {
+                searchVC.searchResultsController as? ALKSearchResultViewController != nil
+            {
                 return true
             }
             return false
@@ -169,7 +181,8 @@ public class NotificationHelper {
             refreshConversation(vc, with: notification)
         default:
             if let searchVC = topVC as? UISearchController,
-                let vc = searchVC.presentingViewController as? ALKConversationListViewController {
+                let vc = searchVC.presentingViewController as? ALKConversationListViewController
+            {
                 openConversationFromListVC(vc, notification: notification)
                 return
             }
@@ -208,26 +221,27 @@ public class NotificationHelper {
                 self.handleNotificationTap(notification)
             }
         } else {
-            vc.dismiss(animated: false) {
+            vc.dismiss(animated: true) {
                 self.findChatVC(notification)
             }
         }
     }
 
     private func findControllerInStack(_ vc: UIViewController,
-                                       completion: @escaping () -> Void) {
+                                       completion: @escaping () -> Void)
+    {
         guard !String(describing: vc.classForCoder).hasPrefix("ALKConversation") else {
             completion()
             return
         }
         guard
             vc.navigationController != nil,
-            vc.navigationController?.popViewController(animated: false) == nil
+            vc.navigationController?.popViewController(animated: true) == nil
         else {
             completion()
             return
         }
-        vc.dismiss(animated: false) {
+        vc.dismiss(animated: true) {
             completion()
         }
     }

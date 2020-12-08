@@ -324,7 +324,8 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let totalHeight = max(messageHeight + heightPadding, minimumHeight)
 
         guard let metadata = viewModel.metadata,
-            metadata[AL_MESSAGE_REPLY_KEY] as? String != nil else {
+            metadata[AL_MESSAGE_REPLY_KEY] as? String != nil
+        else {
             return totalHeight
         }
         return totalHeight + Padding.ReplyView.height
@@ -339,7 +340,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
 
         let emailWebViewController = ALKWebViewController(htmlString: viewModel?.message ?? "", url: nil, title: text)
         let pushAssist = ALPushAssist()
-        pushAssist.topViewController.navigationController?.pushViewController(emailWebViewController, animated: false)
+        pushAssist.topViewController.navigationController?.pushViewController(emailWebViewController, animated: true)
     }
 
     // MARK: - ChatMenuCell

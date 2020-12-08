@@ -247,12 +247,13 @@ final class ALKCreateGroupViewController: ALKBaseViewController, Localizable {
         guard
             let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: self, and: configuration)
         else { return }
-        present(vc, animated: false, completion: nil)
+        present(vc, animated: true, completion: nil)
     }
 
     func setCurrentGroupSelected(groupId: NSNumber,
                                  groupProfile: String?,
-                                 delegate: ALKCreateGroupChatAddFriendProtocol) {
+                                 delegate: ALKCreateGroupChatAddFriendProtocol)
+    {
         groupDelegate = delegate
         self.groupId = groupId
         groupName = ALChannelService().getChannelByKey(groupId)?.name ?? ""
@@ -434,7 +435,7 @@ extension ALKCreateGroupViewController: ALKCreateGroupViewModelDelegate {
             localizedStringFileName: localizedStringFileName
         )
 
-        let conversationVC = ALKConversationViewController(configuration: configuration)
+        let conversationVC = ALKConversationViewController(configuration: configuration, individualLaunch: true)
         conversationVC.viewModel = conversationViewModel
         navigationController?.pushViewController(conversationVC, animated: true)
     }
@@ -572,7 +573,7 @@ extension ALKCreateGroupViewController: ALKAddParticipantProtocol {
             localizedStringFileName: localizedStringFileName
         )
 
-        let conversationVC = ALKConversationViewController(configuration: configuration)
+        let conversationVC = ALKConversationViewController(configuration: configuration, individualLaunch: true)
         conversationVC.viewModel = viewModel
         navigationController?.pushViewController(conversationVC, animated: true)
     }
@@ -614,7 +615,7 @@ extension ALKCreateGroupViewController: ALKSelectParticipantToAddProtocol {
 
 extension ALKCreateGroupViewController {
     override func hideKeyboard() {
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
+        let tap = UITapGestureRecognizer(
             target: self,
             action: #selector(ALKCreateGroupViewController.dismissKeyboard)
         )

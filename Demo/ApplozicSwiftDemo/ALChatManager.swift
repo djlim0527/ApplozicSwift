@@ -57,7 +57,7 @@ class ALChatManager: NSObject {
         print("DEVICE_TOKEN_STRING :: \(deviceTokenString)")
 
         if ALUserDefaultsHandler.getApnDeviceToken() != deviceTokenString {
-            let alRegisterUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
+            let alRegisterUserClientService = ALRegisterUserClientService()
             alRegisterUserClientService.updateApnDeviceToken(withCompletion: deviceTokenString, withCompletion: { response, _ in
                 print("REGISTRATION_RESPONSE :: \(String(describing: response))")
             })
@@ -70,7 +70,7 @@ class ALChatManager: NSObject {
     // ----------------------
     func connectUser(_ alUser: ALUser, completion: @escaping (_ response: ALRegistrationResponse?, _ error: NSError?) -> Void) {
         _ = ALChatLauncher(applicationId: getApplicationKey() as String)
-        let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
+        let registerUserClientService = ALRegisterUserClientService()
         registerUserClientService.initWithCompletion(alUser, withCompletion: { response, error in
             guard error == nil else {
                 completion(nil, error as NSError?)
@@ -100,7 +100,8 @@ class ALChatManager: NSObject {
 
     func isUserPresent() -> Bool {
         guard let _ = ALUserDefaultsHandler.getApplicationKey() as String?,
-            let _ = ALUserDefaultsHandler.getUserId() as String? else {
+            let _ = ALUserDefaultsHandler.getUserId() as String?
+        else {
             return false
         }
         return true
@@ -131,38 +132,38 @@ class ALChatManager: NSObject {
         let conversationVC = ALKConversationListViewController(configuration: configuration)
         let navVC = ALKBaseNavigationViewController(rootViewController: conversationVC)
         navVC.modalPresentationStyle = .fullScreen
-        viewController.present(navVC, animated: false, completion: nil)
+        viewController.present(navVC, animated: true, completion: nil)
     }
 
     func launch(viewController: UIViewController, from vc: UIViewController) {
         let navVC = ALKBaseNavigationViewController(rootViewController: viewController)
         guard vc.navigationController != nil else {
-            vc.present(navVC, animated: false, completion: nil)
+            vc.present(navVC, animated: true, completion: nil)
             return
         }
         vc.modalPresentationStyle = .fullScreen
-        vc.navigationController?.pushViewController(viewController, animated: false)
+        vc.navigationController?.pushViewController(viewController, animated: true)
     }
 
-    func launchChatWith(contactId: String, from viewController: UIViewController, configuration: ALKConfiguration) {
+    func launchChatWith(contactId: String, from viewController: UIViewController, configuration: ALKConfiguration, prefilledMessage: String? = nil) {
         let alContactDbService = ALContactDBService()
         var title = ""
         if let alContact = alContactDbService.loadContact(byKey: "userId", value: contactId), let name = alContact.getDisplayName() {
             title = name
         }
         title = title.isEmpty ? "No name" : title
-        let convViewModel = ALKConversationViewModel(contactId: contactId, channelKey: nil, localizedStringFileName: configuration.localizedStringFileName)
-        let conversationViewController = ALKConversationViewController(configuration: configuration)
+        let convViewModel = ALKConversationViewModel(contactId: contactId, channelKey: nil, localizedStringFileName: configuration.localizedStringFileName, prefilledMessage: prefilledMessage)
+        let conversationViewController = ALKConversationViewController(configuration: configuration, individualLaunch: true)
         conversationViewController.viewModel = convViewModel
         launch(viewController: conversationViewController, from: viewController)
     }
 
-    func launchGroupWith(clientGroupId: String, from viewController: UIViewController, configuration: ALKConfiguration) {
+    func launchGroupWith(clientGroupId: String, from viewController: UIViewController, configuration: ALKConfiguration, prefilledMessage: String? = nil) {
         let alChannelService = ALChannelService()
         alChannelService.getChannelInformation(nil, orClientChannelKey: clientGroupId) { channel in
             guard let channel = channel, let key = channel.key else { return }
-            let convViewModel = ALKConversationViewModel(contactId: nil, channelKey: key, localizedStringFileName: configuration.localizedStringFileName)
-            let conversationViewController = ALKConversationViewController(configuration: configuration)
+            let convViewModel = ALKConversationViewModel(contactId: nil, channelKey: key, localizedStringFileName: configuration.localizedStringFileName, prefilledMessage: prefilledMessage)
+            let conversationViewController = ALKConversationViewController(configuration: configuration, individualLaunch: true)
             conversationViewController.viewModel = convViewModel
             self.launch(viewController: conversationViewController, from: viewController)
         }
@@ -173,7 +174,7 @@ class ALChatManager: NSObject {
         let userId = conversationProxy.userId
         let groupId = conversationProxy.groupId
         let convViewModel = ALKConversationViewModel(contactId: userId, channelKey: groupId, conversationProxy: conversationProxy, localizedStringFileName: configuration.localizedStringFileName)
-        let conversationViewController = ALKConversationViewController(configuration: configuration)
+        let conversationViewController = ALKConversationViewController(configuration: configuration, individualLaunch: true)
         conversationViewController.viewModel = convViewModel
         launch(viewController: conversationViewController, from: viewController)
     }
@@ -297,11 +298,13 @@ class ALChatManager: NSObject {
     private func chatTitleUsing(userId: String?, groupId: NSNumber?) -> String {
         if let contactId = userId,
             let contact = ALContactDBService().loadContact(byKey: "userId", value: contactId),
-            let name = contact.getDisplayName() {
+            let name = contact.getDisplayName()
+        {
             return name
         }
         if let channelKey = groupId,
-            let channel = ALChannelService().getChannelByKey(channelKey) {
+            let channel = ALChannelService().getChannelByKey(channelKey)
+        {
             return channel.name
         }
         return "No name"

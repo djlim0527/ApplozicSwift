@@ -28,7 +28,7 @@ class LoginViewController: UIViewController {
 
     @IBAction func getStartedBtn(_: AnyObject) {
         let appId = ALChatManager.applicationId
-        let alUser: ALUser = ALUser()
+        let alUser = ALUser()
         alUser.applicationId = appId
 
         if ALChatManager.isNilOrEmpty(userName.text as NSString?) {
@@ -58,7 +58,7 @@ class LoginViewController: UIViewController {
                 self.addContacts()
                 NSLog("[REGISTRATION] Applozic user registration was successful: %@ \(String(describing: response?.isRegisteredSuccessfully()))")
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewController")
-                self.present(vc!, animated: false, completion: nil)
+                self.present(vc!, animated: true, completion: nil)
             } else {
                 NSLog("[REGISTRATION] Applozic user registration error: %@", error.debugDescription)
             }

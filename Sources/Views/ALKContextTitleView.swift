@@ -57,11 +57,12 @@ open class ALKContextTitleView: UIView, ALKContextTitleViewType {
 
     // MARK: - Initialization
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         setupConstraints()
     }
 
+    @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

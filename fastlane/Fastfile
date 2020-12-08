@@ -29,9 +29,9 @@ platform :ios do
 
     version = releaseBranchName.partition('/').last
     version_bump_podspec(path: "ApplozicSwift.podspec", version_number: version)
-    cocoapods(clean: true, podfile: "Demo/Podfile", repo_update: true)
+    cocoapods(clean_install: true, podfile: "Demo/Podfile", repo_update: true)
 
-    pod_lib_lint
+    pod_lib_lint(allow_warnings: true)
     update_changelog_tag(version: version)
     push_version_update(version: version, releaseBranchName: releaseBranchName)
 

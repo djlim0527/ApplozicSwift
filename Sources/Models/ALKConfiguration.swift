@@ -114,7 +114,7 @@ public struct ALKConfiguration {
     public var chatBar = ALKChatBarConfiguration()
 
     /// Right  Navigation bar items in conversation list view
-    public var navigationItemsForConversationList: [ALKNavigationItem] = [ALKNavigationItem]() {
+    public var navigationItemsForConversationList = [ALKNavigationItem]() {
         didSet {
             let prefixArray = navigationItemsForConversationList.prefix(2)
             navigationItemsForConversationList = Array(prefixArray)
@@ -123,7 +123,7 @@ public struct ALKConfiguration {
     }
 
     /// Right  Navigation bar items in conversation  view controller
-    public var navigationItemsForConversationView: [ALKNavigationItem] = [ALKNavigationItem]() {
+    public var navigationItemsForConversationView = [ALKNavigationItem]() {
         didSet {
             let prefixArray = navigationItemsForConversationView.prefix(2)
             navigationItemsForConversationView = Array(prefixArray)
@@ -147,6 +147,11 @@ public struct ALKConfiguration {
 
     // If true, then link preview will be disabled
     public var isLinkPreviewDisabled: Bool = false
+
+    /// If true, then the new iOS Photos UI would be shown in iOS 14+ devices.
+    /// It handles content restrictions in iOS 14 and above.
+    /// Default value is false.
+    public var isNewSystemPhotosUIEnabled = false
 
     /// If true, contact share option in chatbar will be hidden.
     @available(*, deprecated, message: "Use .chatBar.optionsToShow instead")

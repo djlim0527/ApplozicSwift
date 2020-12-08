@@ -1,25 +1,56 @@
 //
-//  ALKFormPasswordItemCell.swift
+//  ALKDateItemCell.swift
 //  ApplozicSwift
 //
-//  Created by Mukesh on 13/07/20.
+//  Created by Sunil on 30/09/20.
 //
 
 import Foundation
+import UIKit
 
-class ALKFormPasswordItemCell: UITableViewCell {
+class ALKFormDateItemCell: ALKFormDateBaseCell {
     var item: FormViewModelItem? {
         didSet {
-            guard let item = item as? FormViewModelPasswordItem else {
+            guard let item = item as? FormViewModelDateItem else {
                 return
             }
             nameLabel.text = item.label
             valueTextField.attributedPlaceholder =
-                NSAttributedString(string: item.placeholder ?? "")
+                NSAttributedString(string: Date.is24HrsFormate() ? Date.Formates.Date.twentyfour : Date.Formates.Date.twelve)
             valueTextField.placeholderColor = .lightGray
         }
     }
+}
 
+class ALKFormTimeItemCell: ALKFormDateBaseCell {
+    var item: FormViewModelItem? {
+        didSet {
+            guard let item = item as? FormViewModelTimeItem else {
+                return
+            }
+            nameLabel.text = item.label
+            valueTextField.attributedPlaceholder =
+                NSAttributedString(string: Date.is24HrsFormate() ? Date.Formates.Time.twentyfour : Date.Formates.Time.twelve)
+            valueTextField.placeholderColor = .lightGray
+        }
+    }
+}
+
+class ALKFormDateTimeItemCell: ALKFormDateBaseCell {
+    var item: FormViewModelItem? {
+        didSet {
+            guard let item = item as? FormViewModelDateTimeLocalItem else {
+                return
+            }
+            nameLabel.text = item.label
+            valueTextField.attributedPlaceholder =
+                NSAttributedString(string: Date.is24HrsFormate() ? Date.Formates.DateAndTime.twentyfour : Date.Formates.DateAndTime.twelve)
+            valueTextField.placeholderColor = .lightGray
+        }
+    }
+}
+
+class ALKFormDateBaseCell: UITableViewCell {
     let nameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = Font.medium(size: 15).font()
@@ -31,7 +62,7 @@ class ALKFormPasswordItemCell: UITableViewCell {
 
     let valueTextField: UITextField = {
         let textfield = UITextField(frame: .zero)
-        textfield.isSecureTextEntry = true
+        textfield.isUserInteractionEnabled = true
         return textfield
     }()
 

@@ -108,7 +108,7 @@ public class ReceivedImageMessageCell: UITableViewCell {
 
     fileprivate var imageUrl: String?
 
-    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    override public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         messageViewPadding = Padding(left: Config.MessageView.leftPadding,
                                      right: Config.MessageView.rightPadding,
                                      top: Config.MessageView.topPadding,
@@ -121,6 +121,7 @@ public class ReceivedImageMessageCell: UITableViewCell {
         backgroundColor = .clear
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -143,10 +144,10 @@ public class ReceivedImageMessageCell: UITableViewCell {
         imageBubbleHeight.constant = ImageBubbleSizeCalculator().rowHeight(model: model, maxWidth: Config.maxWidth)
 
         if !isMessageEmpty {
-            messageView.update(model: model.message.text ?? "")
+            messageView.update(model: model.message)
         }
 
-        messageView.updateHeighOfView(hideView: isMessageEmpty, model: model.message.text ?? "")
+        messageView.updateHeighOfView(hideView: isMessageEmpty, model: model.message)
         /// Set frame
         let height = ReceivedImageMessageCell.rowHeight(model: model)
         frame.size = CGSize(width: Config.maxWidth, height: height)

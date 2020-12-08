@@ -15,7 +15,8 @@ protocol ALKLocationCellDelegate: AnyObject {
 }
 
 class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
-    ALKReplyMenuItemProtocol, ALKReportMessageMenuItemProtocol {
+    ALKReplyMenuItemProtocol, ALKReportMessageMenuItemProtocol
+{
     weak var delegate: ALKLocationCellDelegate?
 
     // MARK: - Declare Variables or Types
@@ -191,7 +192,7 @@ class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
 
 class ALKTappableView: UIView {
     // To highlight when long pressed
-    open override var canBecomeFirstResponder: Bool {
+    override open var canBecomeFirstResponder: Bool {
         return true
     }
 }

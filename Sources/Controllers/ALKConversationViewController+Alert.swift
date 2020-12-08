@@ -13,7 +13,7 @@ extension ALKConversationViewController: ALAlertButtonClickProtocol {
         let alPushAssist = ALPushAssist()
 
         if action == ALKAlertViewController.Action.reportMessage {
-            alPushAssist.topViewController.dismiss(animated: false, completion: nil)
+            alPushAssist.topViewController.dismiss(animated: true, completion: nil)
 
             guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
                 return
@@ -55,7 +55,8 @@ extension ALKConversationViewController: ALAlertButtonClickProtocol {
     }
 
     func menuItemSelected(action: ALKChatBaseCell<ALKMessageViewModel>.MenuActionType,
-                          message: ALKMessageViewModel) {
+                          message: ALKMessageViewModel)
+    {
         switch action {
         case .reply:
             print("Reply selected")

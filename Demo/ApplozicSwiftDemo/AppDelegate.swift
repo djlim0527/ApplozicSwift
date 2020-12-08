@@ -38,8 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ///       Finally, Uncomment below line
         /// PushNotificationHandler.shared.handleNotification(with: AppDelegate.config)
         ALKPushNotificationHandler.shared.dataConnectionNotificationHandlerWith(AppDelegate.config)
-        let alApplocalNotificationHnadler: ALAppLocalNotifications = ALAppLocalNotifications.appLocalNotificationHandler()
-        alApplocalNotificationHnadler.dataConnectionNotificationHandler()
+        let alApplocalNotificationHnadler = ALAppLocalNotifications.appLocalNotificationHandler()
+        alApplocalNotificationHnadler?.dataConnectionNotificationHandler()
 
         if ALUserDefaultsHandler.isLoggedIn() {
             // Get login screen from storyboard and present it
@@ -86,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         print("DEVICE_TOKEN_STRING :: \(deviceTokenString)")
 
         if ALUserDefaultsHandler.getApnDeviceToken() != deviceTokenString {
-            let alRegisterUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
+            let alRegisterUserClientService = ALRegisterUserClientService()
             alRegisterUserClientService.updateApnDeviceToken(withCompletion: deviceTokenString, withCompletion: { response, _ in
                 print("REGISTRATION_RESPONSE :: \(String(describing: response))")
             })

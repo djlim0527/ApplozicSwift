@@ -5,10 +5,46 @@ The changelog for [ApplozicSwift](https://github.com/AppLozic/ApplozicSwift). Al
 
 ## [Unreleased]
 
+## [5.11.1] - 2020-12-01
+
+### Enhancements
+- [CM-486] Show time, state and correct message view's left padding in the all buttons rich message template.
+- [CM-507] Enable screen transition animations in all screens.
+
+### Fixes
+- Fixed an issue where back button action in the conversation screen was not opening correct screen.
+- Fixed an issue where in some cases conversation was not switching when we open it through notification from background.
+
+## [5.11.0] - 2020-10-27
+
+### Enhancements
+- [CM-402] Date picker support in form template.
+- [CM-402] Text validation support in form template.
+- [CM-451] Add support for setting a prefilled message to send before launching a chat.
+- [CM-480] Added config for changing textview's text and placeholder style
+ </br> Use the below config to change the style:
+
+```swift
+// Text view's placeholder style
+ALKChatBarConfiguration.TextView.placeholder = Style(font: .font(.normal(size: 16)), text: .gray)
+
+// Text view's text style
+ALKChatBarConfiguration.TextView.text = Style(font: .font(.normal(size: 18)), text: .black)
+```
+- [CM-411] Show new Photos UI in iOS 14+ devices to send images/videos without giving full access to the library.
+
+## [5.10.2] - 2020-10-06
+
+### Fixes
+- Fixed an issue where button tap in form template was not working in iOS 14.
+- [CM-481] Sender's profile image and name will be shown in the all buttons rich message template.
+
 ## [5.10.0] - 2020-09-09
 
 ### Enhancements
+- [CM-380] Support HTML message type with rich messages.
 - [CM-213] Added support for sharing photos saved on iCloud.
+- [CM-383] Added speech to text support.
 
 ## [5.9.2] - 2020-08-21
 
@@ -444,6 +480,9 @@ The mute icon image can be changed from outside using below code.
 - [CS-108] Add support for contacts group.
 
 ### Fixes
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
+- [AL-2885] Fixed a crash when tapping on add member in Create group screen.
 - [AL-2885] Fixed a crash when tapping on add member in Create group screen.
 - [AL-2885] Fixed a crash when tapping on add member in Create group screen.
 - [AL-2885] Fixed a crash when tapping on add member in Create group screen.

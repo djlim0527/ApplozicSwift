@@ -38,7 +38,7 @@ open class AudioRecordButton: UIButton {
     fileprivate var audioFilename: URL!
     private var audioPlayer: AVAudioPlayer?
 
-    let recordButton: UIButton = UIButton(type: .custom)
+    let recordButton = UIButton(type: .custom)
 
     func setAudioRecDelegate(recorderDelegate: ALKAudioRecorderProtocol?) {
         delegate = recorderDelegate
@@ -68,17 +68,18 @@ open class AudioRecordButton: UIButton {
         recordButton.addGestureRecognizer(longPress)
     }
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         setupRecordButton()
     }
 
+    @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    open override var intrinsicContentSize: CGSize {
+    override open var intrinsicContentSize: CGSize {
         if state == .none {
             return recordButton.intrinsicContentSize
         } else {

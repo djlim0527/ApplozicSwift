@@ -42,6 +42,7 @@ public final class ALKNewChatViewController: ALKBaseViewController, Localizable 
         setupView()
     }
 
+    @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -50,7 +51,7 @@ public final class ALKNewChatViewController: ALKBaseViewController, Localizable 
         super.init(configuration: configuration)
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
         ALUserDefaultsHandler.setContactServerCallIsDone(false)
@@ -60,7 +61,7 @@ public final class ALKNewChatViewController: ALKBaseViewController, Localizable 
         }
     }
 
-    public override func viewWillAppear(_ animated: Bool) {
+    override public func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         edgesForExtendedLayout = []
         activityIndicator.center = CGPoint(x: view.bounds.size.width / 2, y: view.bounds.size.height / 2)
@@ -107,9 +108,11 @@ public final class ALKNewChatViewController: ALKBaseViewController, Localizable 
         tableView.register(ALKFriendNewChatCell.self)
     }
 
-    private func launch(_ conversationVC: ALKConversationViewController) {
-        // Remove current VC from the stack
-        var navControllers = navigationController?.viewControllers.dropLast() ?? []
+    private func launch(_ conversationVC: ALKConversationViewController, fromCreateGroup: Bool) {
+        // Remove the last 3 VC from the stack in case of fromCreateGroup is true
+        // If fromCreateGroup false remove last VC
+        // and Add ALKConversationViewController
+        var navControllers = navigationController?.viewControllers.dropLast(fromCreateGroup ? 3 : 1) ?? []
         navControllers.append(conversationVC)
         navigationController?.setViewControllers(navControllers, animated: true)
     }
@@ -153,10 +156,10 @@ extension ALKNewChatViewController: UITableViewDelegate, UITableViewDataSource {
 
         let viewModel = ALKConversationViewModel(contactId: friendViewModel.friendUUID, channelKey: nil, localizedStringFileName: configuration.localizedStringFileName)
 
-        let conversationVC = ALKConversationViewController(configuration: configuration)
+        let conversationVC = ALKConversationViewController(configuration: configuration, individualLaunch: true)
         conversationVC.viewModel = viewModel
 
-        launch(conversationVC)
+        launch(conversationVC, fromCreateGroup: false)
         self.tableView.deselectRow(at: indexPath, animated: true)
         self.tableView.isUserInteractionEnabled = true
     }
@@ -227,10 +230,9 @@ extension ALKNewChatViewController: ALKCreateGroupChatAddFriendProtocol {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: list)
 
             let viewModel = ALKConversationViewModel(contactId: nil, channelKey: alChannel.key, localizedStringFileName: self.configuration.localizedStringFileName)
-            let conversationVC = ALKConversationViewController(configuration: self.configuration)
+            let conversationVC = ALKConversationViewController(configuration: self.configuration, individualLaunch: true)
             conversationVC.viewModel = viewModel
-            _ = self.navigationController?.popToViewController(self, animated: true)
-            self.launch(conversationVC)
+            self.launch(conversationVC, fromCreateGroup: true)
             self.tableView.isUserInteractionEnabled = true
         })
     }

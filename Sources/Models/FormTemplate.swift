@@ -14,10 +14,12 @@ struct FormTemplate: Decodable {
         let type: String
         let data: Details?
     }
+
     struct Details: Decodable {
         let label, placeholder, name, value, title, type: String?
-        let action : Action?
+        let action: Action?
         let options: [Option]?
+        let validation: Validation?
     }
 
     struct Option: Decodable {
@@ -25,7 +27,11 @@ struct FormTemplate: Decodable {
     }
 
     struct Action: Decodable {
-        let formAction, message,requestType: String?
+        let formAction, message, requestType: String?
+    }
+
+    struct Validation: Decodable {
+        let regex, errorText: String?
     }
 }
 
@@ -45,6 +51,9 @@ extension FormTemplate.Element {
         case singleSelect = "radio"
         case hidden
         case submit
+        case date
+        case time
+        case dateTimeLocal = "datetime-local"
         case unknown
     }
 

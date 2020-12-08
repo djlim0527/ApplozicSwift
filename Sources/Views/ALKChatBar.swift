@@ -105,8 +105,8 @@ open class ALKChatBar: UIView, Localizable {
 
     open lazy var placeHolder: UITextView = {
         let view = UITextView()
-        view.setFont(UIFont.font(.normal(size: 14)))
-        view.setTextColor(.color(Color.Text.gray9B))
+        view.setFont(ALKChatBarConfiguration.TextView.placeholder.font)
+        view.setTextColor(ALKChatBarConfiguration.TextView.placeholder.text)
         view.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
         view.isUserInteractionEnabled = false
         view.isScrollEnabled = false
@@ -116,12 +116,24 @@ open class ALKChatBar: UIView, Localizable {
         return view
     }()
 
-    open var micButton: AudioRecordButton = {
-        let button = AudioRecordButton(frame: CGRect())
-        button.layer.masksToBounds = true
-        button.accessibilityIdentifier = "MicButton"
-        return button
-    }()
+    #if SPEECH_REC
+        open lazy var micButton: SpeechToTextButton = {
+            let button = SpeechToTextButton(
+                textView: textView,
+                localizedStringFileName: configuration.localizedStringFileName
+            )
+            button.layer.masksToBounds = true
+            button.accessibilityIdentifier = "MicButton"
+            return button
+        }()
+    #else
+        open var micButton: AudioRecordButton = {
+            let button = AudioRecordButton(frame: CGRect())
+            button.layer.masksToBounds = true
+            button.accessibilityIdentifier = "MicButton"
+            return button
+        }()
+    #endif
 
     open var photoButton: UIButton = {
         let bt = UIButton(type: .custom)
@@ -212,12 +224,13 @@ open class ALKChatBar: UIView, Localizable {
         }
     }
 
-    var defaultTextAttributes: [NSAttributedString.Key: Any] = {
+    lazy var defaultTextAttributes: [NSAttributedString.Key: Any] = {
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 4.0
         let attrs = [
             NSAttributedString.Key.paragraphStyle: style,
-            NSAttributedString.Key.font: UIFont.font(.normal(size: 16.0)),
+            NSAttributedString.Key.font: ALKChatBarConfiguration.TextView.text.font,
+            NSAttributedString.Key.foregroundColor: ALKChatBarConfiguration.TextView.text.text,
         ]
         return attrs
     }() {
@@ -358,7 +371,7 @@ open class ALKChatBar: UIView, Localizable {
 
     private var isNeedInitText = true
 
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
 
         if isNeedInitText {
@@ -537,6 +550,7 @@ open class ALKChatBar: UIView, Localizable {
         bringSubviewToFront(frameView)
     }
 
+    @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -584,10 +598,14 @@ open class ALKChatBar: UIView, Localizable {
     }
 
     func stopRecording() {
-        soundRec.userDidStopRecording()
-        micButton.isSelected = false
-        soundRec.isHidden = true
-        resetToDefaultPlaceholderText()
+        #if SPEECH_REC
+            toggleButtonInChatBar(hide: false)
+        #else
+            soundRec.userDidStopRecording()
+            micButton.isSelected = false
+            soundRec.isHidden = true
+            resetToDefaultPlaceholderText()
+        #endif
     }
 
     func hideAudioOptionInChatBar() {
@@ -664,7 +682,8 @@ open class ALKChatBar: UIView, Localizable {
             var image = image?.imageFlippedForRightToLeftLayoutDirection()
             image = image?.scale(with: size)
             if tintColor != nil,
-                !chatBarConfiguration.disableButtonTintColor {
+                !chatBarConfiguration.disableButtonTintColor
+            {
                 image = image?.withRenderingMode(.alwaysTemplate)
                 button.imageView?.tintColor = tintColor
             }
@@ -688,6 +707,10 @@ open class ALKChatBar: UIView, Localizable {
             }
         }
     }
+
+    func setDefaultText(_ text: String) {
+        textView.text = text
+    }
 }
 
 extension ALKChatBar: UITextViewDelegate {
@@ -698,8 +721,9 @@ extension ALKChatBar: UITextViewDelegate {
         } else {
             placeHolder.isHidden = true
             placeHolder.alpha = 0
-
-            toggleButtonInChatBar(hide: false)
+            if micButton.states != .recording {
+                toggleButtonInChatBar(hide: false)
+            }
             updateTextViewHeight(textView: textView, text: textView.text)
         }
 
@@ -800,7 +824,9 @@ extension ALKChatBar: ALKAudioRecorderProtocol {
 
 extension ALKChatBar: ALKAudioRecorderViewProtocol {
     public func cancelAudioRecording() {
-        micButton.cancelAudioRecord()
+        #if !SPEECH_REC
+            micButton.cancelAudioRecord()
+        #endif
         stopRecording()
     }
 }

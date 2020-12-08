@@ -25,6 +25,7 @@ struct SystemMessage: Localizable {
         static let PleaseAllowMic = localizedString(forKey: "AllowSoundRecordingMessage")
         static let SlideToCancel = localizedString(forKey: "SlideToCancelMessage")
         static let Recording = localizedString(forKey: "RecordingMessage")
+        static let SpeechToTextPlaceholder = localizedString(forKey: "SpeechToTextPlaceholder")
     }
 
     struct Map {
@@ -46,6 +47,7 @@ struct SystemMessage: Localizable {
         static let ReportAlertMessage = localizedString(forKey: "ReportAlertMessage")
         static let ReportInfoMessage = localizedString(forKey: "ReplyInfoMessage")
         static let FailedToLoadLink = localizedString(forKey: "FailedToLoadLink")
+        static let ExportLoadingIndicatorText = localizedString(forKey: "ExportLoadingIndicatorText")
     }
 
     struct Update {
@@ -107,6 +109,7 @@ struct SystemMessage: Localizable {
 
     struct UIError {
         static let unspecifiedLocation = localizedString(forKey: "UnspecifiedLocation")
+        static let InvalidDatErrorInForm = localizedString(forKey: "InvalidDatErrorInForm")
     }
 
     struct PhotoAlbum {
@@ -161,6 +164,9 @@ struct SystemMessage: Localizable {
         static let Report = localizedString(forKey: "Report")
         static let You = localizedString(forKey: "You")
         static let Admin = localizedString(forKey: "Admin")
+        static let DatePickerTimeTitle = localizedString(forKey: "DatePickerTimeTitle")
+        static let DatePickerDateTitle = localizedString(forKey: "DatePickerDateTitle")
+        static let DatePickerDateAndTimeTitle = localizedString(forKey: "DatePickerDateAndTimeTitle")
     }
 
     struct Mute {

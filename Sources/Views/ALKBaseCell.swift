@@ -13,10 +13,12 @@ open class ALKBaseCell<T>: UITableViewCell {
     var viewModel: T?
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        contentView.isUserInteractionEnabled = true
         setupViews()
         setupStyle()
     }
 
+    @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

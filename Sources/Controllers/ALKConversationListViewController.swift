@@ -50,6 +50,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
             style: .plain,
             target: self, action: #selector(compose)
         )
+        barButton.accessibilityIdentifier = "NewChatButton"
         return barButton
     }()
 
@@ -71,6 +72,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         localizedStringFileName = configuration.localizedStringFileName
     }
 
+    @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -82,7 +84,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         conversationListTableViewController.remove()
     }
 
-    open override func addObserver() {
+    override open func addObserver() {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: { [weak self] notification in
             guard let weakSelf = self else { return }
             let msgArray = notification.object as? [ALMessage]
@@ -176,7 +178,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         })
     }
 
-    open override func removeObserver() {
+    override open func removeObserver() {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "pushNotification"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "newMessageNotification"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "reloadTable"), object: nil)
@@ -185,7 +187,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardDidHideNotification, object: nil)
     }
 
-    open override func viewWillAppear(_ animated: Bool) {
+    override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         activityIndicator.center = CGPoint(x: view.bounds.size.width / 2, y: view.bounds.size.height / 2)
         activityIndicator.color = UIColor.gray
@@ -194,7 +196,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         viewModel.prepareController(dbService: dbService)
     }
 
-    open override func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         alMqttConversationService = ALMQTTConversationService.sharedInstance()
         alMqttConversationService.mqttConversationDelegate = self
@@ -206,7 +208,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         extendedLayoutIncludesOpaqueBars = true
     }
 
-    open override func viewDidAppear(_: Bool) {
+    override open func viewDidAppear(_: Bool) {
         print("contact id: ", contactId as Any)
         if contactId != nil || channelKey != nil || conversationId != nil {
             print("contact id present")
@@ -292,7 +294,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
         let viewController: ALKConversationViewController!
         if conversationViewController == nil {
-            viewController = ALKConversationViewController(configuration: configuration)
+            viewController = ALKConversationViewController(configuration: configuration, individualLaunch: false)
             viewController.viewModel = conversationViewModel
         } else {
             viewController = conversationViewController
@@ -320,7 +322,8 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         if let viewController = conversationViewController,
             viewController.viewModel != nil,
             viewController.viewModel.contactId == message.contactId,
-            viewController.viewModel.channelKey == message.groupId {
+            viewController.viewModel.channelKey == message.groupId
+        {
             print("Contact id matched1")
             viewController.viewModel.addMessagesToList([message])
         }
@@ -335,12 +338,12 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         }
     }
 
-    open override func showAccountSuspensionView() {
+    override open func showAccountSuspensionView() {
         let accountVC = ALKAccountSuspensionController()
         accountVC.closePressed = { [weak self] in
             self?.dismiss(animated: true, completion: nil)
         }
-        present(accountVC, animated: false, completion: nil)
+        present(accountVC, animated: true, completion: nil)
         registerUserClientService.syncAccountStatus { response, error in
             guard error == nil, let response = response, response.isRegisteredSuccessfully() else {
                 print("Failed to sync the account package status")
@@ -362,7 +365,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         } else {
             // push conversation VC
             conversationVC.viewWillLoadFromTappingOnNotification()
-            navigationController?.pushViewController(conversationVC, animated: false)
+            navigationController?.pushViewController(conversationVC, animated: true)
         }
     }
 
@@ -450,7 +453,8 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
         if let vm = viewController?.viewModel, vm.contactId != nil || vm.channelKey != nil,
             let visibleController = navigationController?.visibleViewController,
             visibleController.isKind(of: ALKConversationViewController.self),
-            isNewMessageForActiveThread(alMessage: alMessage, vm: vm) {
+            isNewMessageForActiveThread(alMessage: alMessage, vm: vm)
+        {
             viewModel.syncCall(viewController: viewController, message: message, isChatOpen: true)
 
         } else if !isMessageSentByLoggedInUser(alMessage: alMessage) {
@@ -464,7 +468,8 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
             }
         }
         if let visibleController = navigationController?.visibleViewController,
-            visibleController.isKind(of: ALKConversationListViewController.self) {
+            visibleController.isKind(of: ALKConversationListViewController.self)
+        {
             sync(message: alMessage)
         }
     }
@@ -535,10 +540,10 @@ extension ALKConversationListViewController: ALKConversationListTableViewDelegat
         if let convId = chat.conversationId, let convProxy = convService.getConversationByKey(convId) {
             convViewModel.conversationProxy = convProxy
         }
-        let viewController = conversationViewController ?? ALKConversationViewController(configuration: configuration)
+        let viewController = conversationViewController ?? ALKConversationViewController(configuration: configuration, individualLaunch: false)
         viewController.viewModel = convViewModel
         viewController.individualLaunch = false
-        navigationController?.pushViewController(viewController, animated: false)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
     public func emptyChatCellTapped() {

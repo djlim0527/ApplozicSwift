@@ -30,9 +30,33 @@ public struct ALKChatBarConfiguration {
     /// If true then button tint color will be disabled for attachment buttons, send button.
     public var disableButtonTintColor = false
 
+    /// Set the maximum number of photos/videos that can be selected in the new photos UI.
+    /// Maximum limit should be less than 30
+    public var photosSelectionLimit: Int = 10 {
+        didSet {
+            guard photosSelectionLimit < 1 || photosSelectionLimit > 30 else { return }
+            print("Error: Photos selection limit should be set b/w 1 & 30")
+            photosSelectionLimit = 10
+        }
+    }
+
     /// Use this to set the `AttachmentOptions` you want to show.
     /// By default it is set to `all`.
     public var optionsToShow: AttachmentOptions = .all
+
+    /// Style for textview's text and placeholder
+    public enum TextView {
+        /// Style for place holder.
+        public static var placeholder = Style(
+            font: Font.normal(size: 14).font(),
+            text: .text(.gray9B)
+        )
+        /// Style for text view.
+        public static var text = Style(
+            font: Font.normal(size: 16.0).font(),
+            text: .text(.black00)
+        )
+    }
 
     private(set) var attachmentIcons: [AttachmentType: UIImage?] = {
         // This way we'll get an error when we have added a
